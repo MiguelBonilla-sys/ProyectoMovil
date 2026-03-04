@@ -30,6 +30,7 @@ private data class Consultation(
 @Composable
 fun ConsultationsScreen() {
     var selectedFilter by remember { mutableStateOf("Activas") }
+    var selectedConsultation by remember { mutableStateOf<Consultation?>(null) }
 
     val filters = listOf("Activas", "Pendientes", "Finalizadas")
 
@@ -141,15 +142,58 @@ fun ConsultationsScreen() {
         }
 
         items(filteredConsultations) { consultation ->
-            ConsultationCard(consultation)
+            ConsultationCard(consultation, onClick = { selectedConsultation = consultation })
         }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
     }
+
+    // ── Diálogo de detalle de consulta ──
+    selectedConsultation?.let { c ->
+        AlertDialog(
+            onDismissRequest = { selectedConsultation = null },
+            containerColor = Color(0xFF1E1E2E),
+            title = {
+                Text(
+                    c.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Estado: ", color = Color.White.copy(alpha = 0.7f))
+                        Text(c.status, color = c.statusColor, fontWeight = FontWeight.SemiBold)
+                    }
+                    Text("👨‍⚖️ Abogado: ${c.lawyerName}", color = Color.White.copy(alpha = 0.9f))
+                    Text("📅 Fecha: ${c.date}", color = Color.White.copy(alpha = 0.7f))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "Puedes comunicarte con tu abogado a través del chat integrado.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.6f)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { selectedConsultation = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3949AB))
+                ) { Text("Abrir chat") }
+            },
+            dismissButton = {
+                TextButton(onClick = { selectedConsultation = null }) {
+                    Text("Cerrar", color = Color.White.copy(alpha = 0.7f))
+                }
+            }
+        )
+    }
 }
 
 @Composable
-private fun ConsultationCard(consultation: Consultation) {
+private fun ConsultationCard(consultation: Consultation, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -213,7 +257,7 @@ private fun ConsultationCard(consultation: Consultation) {
                     color = Color.White.copy(alpha = 0.5f)
                 )
                 OutlinedButton(
-                    onClick = { /* TODO: ver detalle */ },
+                    onClick = onClick,
                     shape = RoundedCornerShape(20.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                     colors = ButtonDefaults.outlinedButtonColors(

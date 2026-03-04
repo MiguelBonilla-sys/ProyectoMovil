@@ -12,6 +12,9 @@ import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.navigation.NavController
+import com.example.proyecto.navigation.Routes
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
+    var menuDialog by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,19 +83,19 @@ fun ProfileScreen() {
                 ProfileMenuItem(
                     icon = Icons.Filled.Person,
                     label = "Datos Personales",
-                    onClick = { /* TODO */ }
+                    onClick = { menuDialog = "Datos Personales" }
                 )
                 HorizontalDivider(color = Color(0xFF2A2A3C))
                 ProfileMenuItem(
                     icon = Icons.Filled.Lock,
                     label = "Seguridad",
-                    onClick = { /* TODO */ }
+                    onClick = { menuDialog = "Seguridad" }
                 )
                 HorizontalDivider(color = Color(0xFF2A2A3C))
                 ProfileMenuItem(
                     icon = Icons.Filled.Notifications,
                     label = "Notificaciones",
-                    onClick = { /* TODO */ }
+                    onClick = { menuDialog = "Notificaciones" }
                 )
             }
         }
@@ -110,13 +114,13 @@ fun ProfileScreen() {
                 ProfileMenuItem(
                     icon = Icons.AutoMirrored.Filled.Help,
                     label = "Centro de Ayuda",
-                    onClick = { /* TODO */ }
+                    onClick = { menuDialog = "Centro de Ayuda" }
                 )
                 HorizontalDivider(color = Color(0xFF2A2A3C))
                 ProfileMenuItem(
                     icon = Icons.Filled.Description,
                     label = "Términos y Condiciones",
-                    onClick = { /* TODO */ }
+                    onClick = { menuDialog = "Términos y Condiciones" }
                 )
             }
         }
@@ -125,7 +129,11 @@ fun ProfileScreen() {
 
         // ── Cerrar Sesión ──
         OutlinedButton(
-            onClick = { /* TODO: cerrar sesión y navegar a welcome */ },
+            onClick = {
+                navController.navigate(Routes.WELCOME) {
+                    popUpTo(0) { inclusive = true }
+                }
+            },
             modifier = Modifier.fillMaxWidth().height(48.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(
@@ -156,6 +164,34 @@ fun ProfileScreen() {
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+
+    // ── Diálogo menú ítem ──
+    if (menuDialog.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = { menuDialog = "" },
+            containerColor = Color(0xFF1E1E2E),
+            title = {
+                Text(
+                    menuDialog,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            },
+            text = {
+                Text(
+                    "Esta función estará disponible próximamente.",
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { menuDialog = "" },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3949AB))
+                ) { Text("Entendido") }
+            }
+        )
     }
 }
 

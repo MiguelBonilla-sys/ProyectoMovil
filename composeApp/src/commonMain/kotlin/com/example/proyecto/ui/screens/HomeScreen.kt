@@ -19,8 +19,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+// 0=Inicio, 1=Abogados, 2=Documentos, 3=Consultas, 4=Perfil
+private val quickActionTabs = listOf(3, 2, 1)
+
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onNavigateToTab: (Int) -> Unit = {}) {
     val quickActions = listOf(
         Triple("Nueva Consulta", Icons.AutoMirrored.Filled.Chat, Color(0xFF3949AB)),
         Triple("Mis Documentos", Icons.Filled.Description, Color(0xFF00BFA5)),
@@ -70,12 +73,13 @@ fun HomeScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                quickActions.forEach { (label, icon, color) ->
+                quickActions.forEachIndexed { index, (label, icon, color) ->
                     QuickActionCard(
                         label = label,
                         icon = icon,
                         color = color,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        onClick = { onNavigateToTab(quickActionTabs[index]) }
                     )
                 }
             }
@@ -221,13 +225,14 @@ private fun QuickActionCard(
     label: String,
     icon: ImageVector,
     color: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     ElevatedCard(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.elevatedCardColors(containerColor = Color(0xFF1E1E2E)),
-        onClick = { /* TODO */ }
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier.padding(12.dp).fillMaxWidth(),

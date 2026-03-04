@@ -1,6 +1,7 @@
 package com.example.proyecto.ui.screens
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.outlined.Chat
@@ -25,7 +26,7 @@ private data class BottomNavItem(
 )
 
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavController) {
     var selectedTab by remember { mutableIntStateOf(0) }
 
     val navItems = listOf(
@@ -67,12 +68,14 @@ fun MainScreen() {
             }
         }
     ) { innerPadding ->
-        when (selectedTab) {
-            0 -> HomeScreen()
-            1 -> LawyersScreen()
-            2 -> DocumentsScreen()
-            3 -> ConsultationsScreen()
-            4 -> ProfileScreen()
+        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+            when (selectedTab) {
+                0 -> HomeScreen(onNavigateToTab = { selectedTab = it })
+                1 -> LawyersScreen()
+                2 -> DocumentsScreen()
+                3 -> ConsultationsScreen()
+                4 -> ProfileScreen(navController = navController)
+            }
         }
     }
 }

@@ -32,6 +32,7 @@ private data class Lawyer(
 fun LawyersScreen() {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("Todos") }
+    var selectedLawyer by remember { mutableStateOf<Lawyer?>(null) }
 
     val filters = listOf("Todos", "Penal", "Civil", "Laboral", "Familia")
 
@@ -118,15 +119,55 @@ fun LawyersScreen() {
 
         // ── Lista de abogados ──
         items(filteredLawyers) { lawyer ->
-            LawyerCard(lawyer)
+            LawyerCard(lawyer, onClick = { selectedLawyer = lawyer })
         }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
     }
+
+    // ── Diálogo de perfil del abogado ──
+    selectedLawyer?.let { lawyer ->
+        AlertDialog(
+            onDismissRequest = { selectedLawyer = null },
+            containerColor = Color(0xFF1E1E2E),
+            title = {
+                Text(
+                    lawyer.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("💼 Especialidad: ${lawyer.specialty}", color = Color.White.copy(alpha = 0.9f))
+                    Text("⭐ Calificación: ${lawyer.rating} / 5.0", color = Color(0xFFFFA726))
+                    Text("📍 Ciudad: ${lawyer.location}", color = Color.White.copy(alpha = 0.7f))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "Disponible para consultas en línea y presenciales.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.6f)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { selectedLawyer = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3949AB))
+                ) { Text("Solicitar consulta") }
+            },
+            dismissButton = {
+                TextButton(onClick = { selectedLawyer = null }) {
+                    Text("Cerrar", color = Color.White.copy(alpha = 0.7f))
+                }
+            }
+        )
+    }
 }
 
 @Composable
-private fun LawyerCard(lawyer: Lawyer) {
+private fun LawyerCard(lawyer: Lawyer, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -198,7 +239,7 @@ private fun LawyerCard(lawyer: Lawyer) {
             }
 
             OutlinedButton(
-                onClick = { /* TODO: ver perfil */ },
+                onClick = onClick,
                 shape = RoundedCornerShape(20.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 colors = ButtonDefaults.outlinedButtonColors(

@@ -34,7 +34,7 @@ fun AppNavGraph() {
             LoginAbogadoScreen(navController = navController)
         }
         composable(Routes.MAIN) {
-            MainScreen()
+            MainScreen(navController = navController)
         }
     }
 }
