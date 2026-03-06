@@ -19,11 +19,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+import com.example.proyecto.data.session.SessionManager
+
 // 0=Inicio, 1=Abogados, 2=Documentos, 3=Consultas, 4=Perfil
 private val quickActionTabs = listOf(3, 2, 1)
 
 @Composable
 fun HomeScreen(onNavigateToTab: (Int) -> Unit = {}) {
+    val currentUser = SessionManager.currentUser
     val quickActions = listOf(
         Triple("Nueva Consulta", Icons.AutoMirrored.Filled.Chat, Color(0xFF3949AB)),
         Triple("Mis Documentos", Icons.Filled.Description, Color(0xFF00BFA5)),
@@ -47,7 +50,7 @@ fun HomeScreen(onNavigateToTab: (Int) -> Unit = {}) {
         // ── Saludo ──
         item {
             Text(
-                text = "Bienvenido a LexSign",
+                text = "Bienvenido, ${currentUser?.nombre?.split(" ")?.firstOrNull() ?: "LexSign"}",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White

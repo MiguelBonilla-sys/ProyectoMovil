@@ -4,11 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -22,17 +24,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavController
 import com.example.proyecto.data.repository.UserRepository
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.navigation.Routes
 
 @Composable
-fun LoginClienteScreen(navController: NavController) {
+fun RegisterClienteScreen(navController: NavController) {
+    var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var confirmVisible by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf("") }
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
@@ -61,7 +65,7 @@ fun LoginClienteScreen(navController: NavController) {
                 .padding(horizontal = 24.dp)
                 .safeContentPadding()
         ) {
-            // ── Header con back ──
+            // ── Header ──
             Spacer(modifier = Modifier.height(8.dp))
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
@@ -72,29 +76,40 @@ fun LoginClienteScreen(navController: NavController) {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Iniciar Sesión",
+                text = "Crear cuenta",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Accede a tu cuenta de cliente",
+                text = "Regístrate como cliente de LexSign",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = Color.White.copy(alpha = 0.7f)
             )
 
-            // ── Campos del formulario ──
+            // ── Formulario ──
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo email
+            OutlinedTextField(
+                value = nombre,
+                onValueChange = { nombre = it; errorMsg = "" },
+                label = { Text("Nombre completo") },
+                leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = textFieldColors
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { email = it; errorMsg = "" },
                 label = { Text("Correo electrónico") },
-                leadingIcon = {
-                    Icon(Icons.Filled.Email, contentDescription = null)
-                },
+                leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
@@ -107,27 +122,46 @@ fun LoginClienteScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo contraseña con toggle visibilidad
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { password = it; errorMsg = "" },
                 label = { Text("Contraseña") },
-                leadingIcon = {
-                    Icon(Icons.Filled.Lock, contentDescription = null)
-                },
+                leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
-                            if (passwordVisible) Icons.Filled.VisibilityOff
-                            else Icons.Filled.Visibility,
-                            contentDescription = if (passwordVisible) "Ocultar contraseña"
-                            else "Mostrar contraseña"
+                            if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                            contentDescription = null
                         )
                     }
                 },
-                visualTransformation = if (passwordVisible)
-                    VisualTransformation.None
-                else PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next
+                ),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = textFieldColors
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it; errorMsg = "" },
+                label = { Text("Confirmar contraseña") },
+                leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
+                trailingIcon = {
+                    IconButton(onClick = { confirmVisible = !confirmVisible }) {
+                        Icon(
+                            if (confirmVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                            contentDescription = null
+                        )
+                    }
+                },
+                visualTransformation = if (confirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
@@ -138,54 +172,9 @@ fun LoginClienteScreen(navController: NavController) {
                 colors = textFieldColors
             )
 
-            // "¿Olvidaste tu contraseña?"
-            TextButton(
-                onClick = { /* TODO: recuperar contraseña */ },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(
-                    "¿Olvidaste tu contraseña?",
-                    color = Color(0xFF3949AB),
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-
-            // ── Botón principal ──
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = {
-                    when {
-                        email.isBlank() || password.isBlank() ->
-                            errorMsg = "Completa todos los campos"
-                        else -> {
-                            val user = UserRepository.authenticate(email.trim(), password, "cliente")
-                            if (user != null) {
-                                SessionManager.login(user)
-                                navController.navigate(Routes.MAIN) {
-                                    popUpTo(Routes.WELCOME) { inclusive = true }
-                                }
-                            } else {
-                                errorMsg = "Correo o contraseña incorrectos"
-                            }
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(50),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1A237E)
-                )
-            ) {
-                Text(
-                    "Iniciar Sesión",
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-
             // ── Error message ──
             if (errorMsg.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = errorMsg,
                     color = Color(0xFFCF6679),
@@ -194,26 +183,63 @@ fun LoginClienteScreen(navController: NavController) {
                 )
             }
 
+            // ── Botón Crear cuenta ──
+            Spacer(modifier = Modifier.height(28.dp))
+            Button(
+                onClick = {
+                    errorMsg = when {
+                        nombre.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank() ->
+                            "Todos los campos son obligatorios"
+                        !email.contains("@") ->
+                            "Ingresa un correo electrónico válido"
+                        password != confirmPassword ->
+                            "Las contraseñas no coinciden"
+                        else -> ""
+                    }
+                    if (errorMsg.isEmpty()) {
+                        UserRepository.register(nombre.trim(), email.trim(), password)
+                            .onSuccess { user ->
+                                SessionManager.login(user)
+                                navController.navigate(Routes.MAIN) {
+                                    popUpTo(Routes.WELCOME) { inclusive = true }
+                                }
+                            }
+                            .onFailure { e -> errorMsg = e.message ?: "Error al registrar" }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A237E))
+            ) {
+                Text(
+                    "Crear cuenta",
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Link a registro
+            // Link a login
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "¿No tienes cuenta? ",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    "¿Ya tienes cuenta? ",
+                    color = Color.White.copy(alpha = 0.7f)
                 )
-                TextButton(onClick = { navController.navigate(Routes.REGISTER_CLIENTE) }) {
+                TextButton(onClick = { navController.popBackStack() }) {
                     Text(
-                        "Regístrate",
+                        "Iniciar sesión",
                         color = Color(0xFF3949AB),
                         fontWeight = FontWeight.SemiBold
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

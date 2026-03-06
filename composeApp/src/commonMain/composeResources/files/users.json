@@ -1,0 +1,9 @@
+[
+  {"nombre":"Miguel Bonilla","email":"miguel@lexsign.co","password":"1234","tipo":"cliente","tarjeta":""},
+  {"nombre":"Sebastian Fandiño","email":"sebastian@lexsign.co","password":"1234","tipo":"cliente","tarjeta":""},
+  {"nombre":"Carlos Ramírez","email":"carlos@lexsign.co","password":"1234","tipo":"abogado","tarjeta":"COL-12345"},
+  {"nombre":"María López","email":"maria@lexsign.co","password":"1234","tipo":"abogado","tarjeta":"COL-67890"},
+  {"nombre":"Andrés García","email":"andres@lexsign.co","password":"1234","tipo":"abogado","tarjeta":"COL-11223"},
+  {"nombre":"Laura Martínez","email":"laura@lexsign.co","password":"1234","tipo":"abogado","tarjeta":"COL-44556"},
+  {"nombre":"Jorge Hernández","email":"jorge@lexsign.co","password":"1234","tipo":"abogado","tarjeta":"COL-77889"}
+]

@@ -24,9 +24,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+import com.example.proyecto.data.session.SessionManager
+
 @Composable
 fun ProfileScreen(navController: NavController) {
     var menuDialog by remember { mutableStateOf("") }
+    val user = SessionManager.currentUser
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -47,7 +50,7 @@ fun ProfileScreen(navController: NavController) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "MB",
+                text = user?.initials ?: "?",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -57,14 +60,14 @@ fun ProfileScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Miguel Bonilla",
+            text = user?.nombre ?: "Usuario",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = Color.White
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "miguel.bonilla@email.com",
+            text = user?.email ?: "",
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.7f)
         )
@@ -130,6 +133,7 @@ fun ProfileScreen(navController: NavController) {
         // ── Cerrar Sesión ──
         OutlinedButton(
             onClick = {
+                SessionManager.logout()
                 navController.navigate(Routes.WELCOME) {
                     popUpTo(0) { inclusive = true }
                 }

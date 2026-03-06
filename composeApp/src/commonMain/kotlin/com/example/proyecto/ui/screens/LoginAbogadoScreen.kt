@@ -27,6 +27,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavController
+import com.example.proyecto.data.repository.UserRepository
+import com.example.proyecto.data.session.SessionManager
+import com.example.proyecto.navigation.Routes
 
 @Composable
 fun LoginAbogadoScreen(navController: NavController) {
@@ -34,6 +37,7 @@ fun LoginAbogadoScreen(navController: NavController) {
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var tarjetaProfesional by remember { mutableStateOf("") }
+    var errorMsg by remember { mutableStateOf("") }
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = Color(0xFF3949AB),
@@ -192,7 +196,23 @@ fun LoginAbogadoScreen(navController: NavController) {
             // ── Botón principal ──
             Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick = { navController.navigate("main") },
+                onClick = {
+                    when {
+                        email.isBlank() || tarjetaProfesional.isBlank() || password.isBlank() ->
+                            errorMsg = "Completa todos los campos"
+                        else -> {
+                            val user = UserRepository.authenticateAbogado(email.trim(), tarjetaProfesional.trim(), password)
+                            if (user != null) {
+                                SessionManager.login(user)
+                                navController.navigate(Routes.MAIN) {
+                                    popUpTo(Routes.WELCOME) { inclusive = true }
+                                }
+                            } else {
+                                errorMsg = "Credenciales incorrectas o no estás registrado"
+                            }
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
@@ -205,7 +225,16 @@ fun LoginAbogadoScreen(navController: NavController) {
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
-
+            // ── Error message ──
+            if (errorMsg.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = errorMsg,
+                    color = Color(0xFFCF6679),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             // Link a registro
