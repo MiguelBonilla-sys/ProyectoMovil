@@ -1,0 +1,108 @@
+-- Table for storing users (both clients and lawyers)
+CREATE TABLE IF NOT EXISTS User (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    tipo TEXT NOT NULL CHECK(tipo IN ('cliente', 'abogado')),
+    tarjeta TEXT NOT NULL DEFAULT '',
+    supabaseId TEXT UNIQUE,
+    createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+    updatedAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+    syncStatus TEXT NOT NULL DEFAULT 'pending' CHECK(syncStatus IN ('synced', 'pending', 'conflict'))
+);
+
+-- Index for fast email lookups (used during login)
+CREATE INDEX IF NOT EXISTS idx_user_email ON User(email);
+
+-- Index for fast tipo lookups (used to filter clients vs lawyers)
+CREATE INDEX IF NOT EXISTS idx_user_tipo ON User(tipo);
+
+-- Index for supabaseId lookups (used during sync operations)
+CREATE INDEX IF NOT EXISTS idx_user_supabase_id ON User(supabaseId);
+
+-- Index for sync status lookups (used to find pending changes)
+CREATE INDEX IF NOT EXISTS idx_user_sync_status ON User(syncStatus);
+
+-- Query to get all users
+selectAll:
+SELECT * FROM User;
+
+-- Query to get a user by email
+selectByEmail:
+SELECT * FROM User WHERE email = ?;
+
+-- Query to get a user by ID
+selectById:
+SELECT * FROM User WHERE id = ?;
+
+-- Query to get a user by Supabase ID
+selectBySupabaseId:
+SELECT * FROM User WHERE supabaseId = ?;
+
+-- Query to get users by type (cliente or abogado)
+selectByTipo:
+SELECT * FROM User WHERE tipo = ?;
+
+-- Query to get pending sync users
+selectPendingSync:
+SELECT * FROM User WHERE syncStatus = 'pending';
+
+-- Query to insert a new user
+insert:
+INSERT INTO User (nombre, email, password, tipo, tarjeta, supabaseId, createdAt, updatedAt, syncStatus)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Query to update an existing user
+update:
+UPDATE User
+SET nombre = ?, email = ?, password = ?, tipo = ?, tarjeta = ?, supabaseId = ?, updatedAt = ?, syncStatus = ?
+WHERE id = ?;
+
+-- Query to update sync status
+updateSyncStatus:
+UPDATE User
+SET syncStatus = ?, updatedAt = ?
+WHERE id = ?;
+
+-- Query to update user's Supabase ID after successful sync
+updateSupabaseId:
+UPDATE User
+SET supabaseId = ?, syncStatus = 'synced', updatedAt = ?
+WHERE id = ?;
+
+-- Query to delete a user by ID
+deleteById:
+DELETE FROM User WHERE id = ?;
+
+-- Query to delete a user by email
+deleteByEmail:
+DELETE FROM User WHERE email = ?;
+
+-- Query to delete all users (for testing purposes)
+deleteAll:
+DELETE FROM User;
+
+-- Query to count total users
+countAll:
+SELECT COUNT(*) FROM User;
+
+-- Query to count users by type
+countByTipo:
+SELECT COUNT(*) FROM User WHERE tipo = ?;
+
+-- Query to authenticate a client (email + password)
+authenticateCliente:
+SELECT * FROM User WHERE email = ? AND password = ? AND tipo = 'cliente';
+
+-- Query to authenticate a lawyer (email + tarjeta + password)
+authenticateAbogado:
+SELECT * FROM User WHERE email = ? AND tarjeta = ? AND password = ? AND tipo = 'abogado';
+
+-- Query to check if email exists
+emailExists:
+SELECT COUNT(*) > 0 AS emailExists FROM User WHERE email = ?;
+
+-- Query to get last inserted row ID
+lastInsertRowId:
+SELECT last_insert_rowid();

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -30,6 +31,8 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.sqldelight.android)
+            implementation(libs.ktor.android)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -43,9 +46,26 @@ kotlin {
             implementation(libs.navigation.compose)
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.sqldelight.coroutines)
+            implementation(libs.supabase.postgrest)
+            implementation(libs.supabase.auth)
+            implementation(libs.supabase.realtime)
+        }
+        iosMain.dependencies {
+            implementation(libs.sqldelight.native)
+            implementation(libs.ktor.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+    }
+    
+    // SQLDelight configuration
+    sqldelight {
+        databases {
+            create("LexSignDatabase") {
+                packageName.set("com.example.proyecto.database")
+            }
         }
     }
 }
@@ -53,7 +73,7 @@ kotlin {
 android {
     namespace = "com.example.proyecto"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
+    
     defaultConfig {
         applicationId = "com.example.proyecto"
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -80,4 +100,3 @@ android {
 dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
-
