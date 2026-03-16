@@ -24,12 +24,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavController
-import com.example.proyecto.data.repository.UserRepository
+import com.example.proyecto.data.AppContainer
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.navigation.Routes
+import com.example.proyecto.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun LoginClienteScreen(navController: NavController) {
+    val coroutineScope = rememberCoroutineScope()
+    val viewModel = remember { AuthViewModel(AppContainer.userRepository, coroutineScope) }
+    
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -154,33 +159,39 @@ fun LoginClienteScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    when {
-                        email.isBlank() || password.isBlank() ->
-                            errorMsg = "Completa todos los campos"
-                        else -> {
-                            val user = UserRepository.authenticate(email.trim(), password, "cliente")
-                            if (user != null) {
-                                SessionManager.login(user)
-                                navController.navigate(Routes.MAIN) {
-                                    popUpTo(Routes.WELCOME) { inclusive = true }
-                                }
-                            } else {
-                                errorMsg = "Correo o contraseña incorrectos"
+                    viewModel.loginCliente(
+                        email = email.trim(),
+                        password = password,
+                        onSuccess = { user ->
+                            SessionManager.login(user)
+                            navController.navigate(Routes.MAIN) {
+                                popUpTo(Routes.WELCOME) { inclusive = true }
                             }
+                        },
+                        onError = { error ->
+                            errorMsg = error
                         }
-                    }
+                    )
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF1A237E)
-                )
+                ),
+                enabled = !viewModel.isLoading
             ) {
-                Text(
-                    "Iniciar Sesión",
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text(
+                        "Iniciar Sesión",
+                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
 
             // ── Error message ──

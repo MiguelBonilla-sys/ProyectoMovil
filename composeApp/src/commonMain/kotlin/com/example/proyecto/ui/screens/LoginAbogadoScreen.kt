@@ -27,12 +27,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavController
-import com.example.proyecto.data.repository.UserRepository
+import com.example.proyecto.data.AppContainer
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.navigation.Routes
+import com.example.proyecto.ui.viewmodel.AuthViewModel
 
 @Composable
 fun LoginAbogadoScreen(navController: NavController) {
+    val coroutineScope = rememberCoroutineScope()
+    val viewModel = remember { AuthViewModel(AppContainer.userRepository, coroutineScope) }
+    
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -197,33 +201,40 @@ fun LoginAbogadoScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    when {
-                        email.isBlank() || tarjetaProfesional.isBlank() || password.isBlank() ->
-                            errorMsg = "Completa todos los campos"
-                        else -> {
-                            val user = UserRepository.authenticateAbogado(email.trim(), tarjetaProfesional.trim(), password)
-                            if (user != null) {
-                                SessionManager.login(user)
-                                navController.navigate(Routes.MAIN) {
-                                    popUpTo(Routes.WELCOME) { inclusive = true }
-                                }
-                            } else {
-                                errorMsg = "Credenciales incorrectas o no estás registrado"
+                    viewModel.loginAbogado(
+                        email = email.trim(),
+                        tarjeta = tarjetaProfesional.trim(),
+                        password = password,
+                        onSuccess = { user ->
+                            SessionManager.login(user)
+                            navController.navigate(Routes.MAIN) {
+                                popUpTo(Routes.WELCOME) { inclusive = true }
                             }
+                        },
+                        onError = { error ->
+                            errorMsg = error
                         }
-                    }
+                    )
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF1A237E)
-                )
+                ),
+                enabled = !viewModel.isLoading
             ) {
-                Text(
-                    "Acceder como Abogado",
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text(
+                        "Acceder como Abogado",
+                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
             // ── Error message ──
             if (errorMsg.isNotEmpty()) {

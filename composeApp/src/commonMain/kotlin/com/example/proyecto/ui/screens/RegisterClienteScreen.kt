@@ -25,12 +25,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.proyecto.data.repository.UserRepository
+import com.example.proyecto.data.AppContainer
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.navigation.Routes
+import com.example.proyecto.ui.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterClienteScreen(navController: NavController) {
+    val coroutineScope = rememberCoroutineScope()
+    val viewModel = remember { AuthViewModel(AppContainer.userRepository, coroutineScope) }
+    
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -197,25 +201,39 @@ fun RegisterClienteScreen(navController: NavController) {
                         else -> ""
                     }
                     if (errorMsg.isEmpty()) {
-                        UserRepository.register(nombre.trim(), email.trim(), password)
-                            .onSuccess { user ->
+                        viewModel.registerCliente(
+                            nombre = nombre.trim(),
+                            email = email.trim(),
+                            password = password,
+                            onSuccess = { user ->
                                 SessionManager.login(user)
                                 navController.navigate(Routes.MAIN) {
                                     popUpTo(Routes.WELCOME) { inclusive = true }
                                 }
+                            },
+                            onError = { error ->
+                                errorMsg = error
                             }
-                            .onFailure { e -> errorMsg = e.message ?: "Error al registrar" }
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(50),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A237E))
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A237E)),
+                enabled = !viewModel.isLoading
             ) {
-                Text(
-                    "Crear cuenta",
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White
+                    )
+                } else {
+                    Text(
+                        "Crear cuenta",
+                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
