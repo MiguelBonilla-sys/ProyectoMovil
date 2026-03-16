@@ -141,11 +141,11 @@ class UserRepository(private val database: LexSignDatabase) {
 #### SupabaseClientProvider
 ```kotlin
 object SupabaseClientProvider {
-    private const val SUPABASE_URL = "YOUR_SUPABASE_URL_HERE"
-    private const val SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE"
-    
     val client: SupabaseClient by lazy {
-        createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY) {
+        createSupabaseClient(
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            supabaseKey = BuildConfig.SUPABASE_ANON_KEY
+        ) {
             install(Auth)
             install(Postgrest)
             install(Realtime)
@@ -156,21 +156,69 @@ object SupabaseClientProvider {
 }
 ```
 
-**TODO:** Reemplazar placeholders con credenciales reales de Supabase.
+**Configuración con archivo .env:**
 
-**Configuración de Supabase requerida:**
-1. Crear proyecto en https://supabase.com
-2. Crear tabla `users` con columnas:
-   - id (uuid, primary key, default: gen_random_uuid())
-   - nombre (text, not null)
-   - email (text, not null, unique)
-   - password (text, not null)
-   - tipo (text, not null)
-   - tarjeta (text, not null, default: '')
-   - created_at (timestamptz, not null, default: now())
-   - updated_at (timestamptz, not null, default: now())
-3. Configurar políticas RLS o desactivar temporalmente para desarrollo
-4. Copiar URL y anon key desde Settings > API
+Las credenciales de Supabase se manejan mediante variables de entorno usando un archivo `.env` (NO se versiona en Git).
+
+**Pasos para configurar:**
+
+1. **Crear proyecto en Supabase:**
+   - Ve a https://supabase.com
+   - Crea un nuevo proyecto
+   - Espera a que termine la configuración
+
+2. **Crear tabla `users` en Supabase:**
+   ```sql
+   CREATE TABLE users (
+     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     nombre TEXT NOT NULL,
+     email TEXT NOT NULL UNIQUE,
+     password TEXT NOT NULL,
+     tipo TEXT NOT NULL CHECK(tipo IN ('cliente', 'abogado')),
+     tarjeta TEXT NOT NULL DEFAULT '',
+     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+   );
+   ```
+
+3. **Configurar políticas RLS (opcional para desarrollo):**
+   - Ve a Authentication > Policies
+   - Puedes desactivar RLS temporalmente para desarrollo
+   - O crear políticas básicas (ver documentación de Supabase)
+
+4. **Obtener credenciales:**
+   - Ve a Settings > API en tu proyecto Supabase
+   - Copia el **Project URL** (ej: `https://xxxxx.supabase.co`)
+   - Copia el **anon public key** (una clave JWT larga)
+
+5. **Configurar archivo .env:**
+   ```bash
+   # En la raíz del proyecto
+   cp .env.example .env
+   
+   # Edita .env y reemplaza con tus valores reales:
+   SUPABASE_URL=https://tu-proyecto.supabase.co
+   SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.tu-clave-real-aqui
+   ```
+
+6. **Rebuild el proyecto:**
+   ```bash
+   ./gradlew clean
+   ./gradlew :composeApp:assembleDebug
+   ```
+   
+   El plugin BuildConfig leerá el archivo `.env` y generará un `BuildConfig.kt` con tus credenciales.
+
+**Archivos importantes:**
+- `.env` - Contiene credenciales (NUNCA commitear, ya está en .gitignore)
+- `.env.example` - Template sin credenciales (SÍ está versionado)
+- `BuildConfig.kt` (generado) - Se crea automáticamente en build time
+
+**Seguridad:**
+- ✅ `.env` está en `.gitignore`
+- ✅ Las credenciales NO están hardcodeadas en el código
+- ✅ Cada desarrollador tiene su propio `.env` local
+- ✅ BuildConfig solo se genera durante compilación
 
 ### 4. ViewModel Layer
 

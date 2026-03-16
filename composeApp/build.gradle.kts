@@ -1,5 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +9,19 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.buildconfig)
+}
+
+// Load environment variables from .env file
+val envFile = rootProject.file(".env")
+val envProperties = Properties()
+if (envFile.exists()) {
+    envFile.inputStream().use { envProperties.load(it) }
+}
+
+// Function to get environment variable with fallback to placeholder
+fun getEnvOrDefault(key: String, default: String): String {
+    return envProperties.getProperty(key) ?: System.getenv(key) ?: default
 }
 
 kotlin {
@@ -68,6 +82,21 @@ kotlin {
             }
         }
     }
+}
+
+// BuildConfig configuration
+buildConfig {
+    packageName("com.example.proyecto")
+    
+    // Generate BuildConfig fields from .env file
+    buildConfigField(
+        "SUPABASE_URL",
+        getEnvOrDefault("SUPABASE_URL", "YOUR_SUPABASE_URL_HERE")
+    )
+    buildConfigField(
+        "SUPABASE_ANON_KEY",
+        getEnvOrDefault("SUPABASE_ANON_KEY", "YOUR_SUPABASE_ANON_KEY_HERE")
+    )
 }
 
 android {

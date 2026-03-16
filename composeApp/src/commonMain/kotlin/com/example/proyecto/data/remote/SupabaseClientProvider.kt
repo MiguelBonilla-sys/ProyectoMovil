@@ -1,5 +1,6 @@
 package com.example.proyecto.data.remote
 
+import com.example.proyecto.BuildConfig
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.auth.Auth
@@ -14,34 +15,24 @@ import io.github.jan.supabase.realtime.Realtime
  * - Database operations (Postgrest module)
  * - Real-time subscriptions (Realtime module)
  * 
- * TODO: Replace placeholder values with your actual Supabase credentials:
- * 1. Go to your Supabase project dashboard
- * 2. Navigate to Settings > API
- * 3. Copy "Project URL" and "anon/public key"
- * 4. Replace the values below
+ * Configuration:
+ * Credentials are loaded from .env file at build time via BuildConfig.
+ * To configure:
+ * 1. Copy .env.example to .env
+ * 2. Fill in your Supabase URL and anon key from Supabase Dashboard > Settings > API
+ * 3. Rebuild the project
  */
 object SupabaseClientProvider {
     
     /**
-     * TODO: Replace with your Supabase project URL
-     * Example: "https://xxxxxxxxxxxxx.supabase.co"
-     */
-    private const val SUPABASE_URL = "YOUR_SUPABASE_URL_HERE"
-    
-    /**
-     * TODO: Replace with your Supabase anon key
-     * Example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-     */
-    private const val SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE"
-    
-    /**
      * Lazy-initialized Supabase client.
      * Only created when first accessed.
+     * Credentials come from BuildConfig (generated from .env file).
      */
     val client: SupabaseClient by lazy {
         createSupabaseClient(
-            supabaseUrl = SUPABASE_URL,
-            supabaseKey = SUPABASE_ANON_KEY
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            supabaseKey = BuildConfig.SUPABASE_ANON_KEY
         ) {
             install(Auth)
             install(Postgrest)
@@ -54,7 +45,9 @@ object SupabaseClientProvider {
      * Returns false if placeholder values are still in use.
      */
     fun isConfigured(): Boolean {
-        return SUPABASE_URL != "YOUR_SUPABASE_URL_HERE" &&
-               SUPABASE_ANON_KEY != "YOUR_SUPABASE_ANON_KEY_HERE"
+        return BuildConfig.SUPABASE_URL != "YOUR_SUPABASE_URL_HERE" &&
+               BuildConfig.SUPABASE_ANON_KEY != "YOUR_SUPABASE_ANON_KEY_HERE" &&
+               BuildConfig.SUPABASE_URL.isNotBlank() &&
+               BuildConfig.SUPABASE_ANON_KEY.isNotBlank()
     }
 }
