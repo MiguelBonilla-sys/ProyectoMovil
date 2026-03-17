@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.proyecto.ui.screens.LoginAbogadoScreen
 import com.example.proyecto.ui.screens.LoginClienteScreen
 import com.example.proyecto.ui.screens.MainScreen
+import com.example.proyecto.ui.screens.RegisterAbogadoScreen
 import com.example.proyecto.ui.screens.RegisterClienteScreen
 import com.example.proyecto.ui.screens.WelcomeScreen
 
@@ -15,6 +16,7 @@ object Routes {
     const val LOGIN_CLIENTE = "login_cliente"
     const val LOGIN_ABOGADO = "login_abogado"
     const val REGISTER_CLIENTE = "register_cliente"
+    const val REGISTER_ABOGADO = "register_abogado"
     const val MAIN = "main"
 }
 
@@ -37,6 +39,9 @@ fun AppNavGraph() {
         }
         composable(Routes.REGISTER_CLIENTE) {
             RegisterClienteScreen(navController = navController)
+        }
+        composable(Routes.REGISTER_ABOGADO) {
+            RegisterAbogadoScreen(navController = navController)
         }
         composable(Routes.MAIN) {
             MainScreen(navController = navController)

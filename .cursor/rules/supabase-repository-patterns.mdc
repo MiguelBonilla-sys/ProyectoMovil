@@ -1,0 +1,297 @@
+---
+description: Patrones para Repositories usando supabase-kt (postgrest)
+globs: **/*Repository.kt
+alwaysApply: false
+---
+
+# Supabase Repository Patterns
+
+## Repository Básico
+
+```kotlin
+// ✅ GOOD - Repository con operaciones CRUD usando postgrest
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
+
+class EmpleadoRepository {
+
+    // CREATE
+    suspend fun insertar(empleado: Empleado): Empleado =
+        supabase.postgrest["empleados"]
+            .insert(empleado) { select() }
+            .decodeSingle<Empleado>()
+
+    // READ - todos
+    suspend fun obtenerTodos(): List<Empleado> =
+        supabase.postgrest["empleados"]
+            .select()
+            .decodeList<Empleado>()
+
+    // READ - uno por id
+    suspend fun obtenerPorId(id: String): Empleado =
+        supabase.postgrest["empleados"]
+            .select {
+                filter { Empleado::id eq id }
+            }
+            .decodeSingle<Empleado>()
+
+    // UPDATE
+    suspend fun actualizar(id: String, empleado: Empleado) {
+        supabase.postgrest["empleados"]
+            .update(empleado) {
+                filter { Empleado::id eq id }
+            }
+    }
+
+    // DELETE
+    suspend fun eliminar(id: String) {
+        supabase.postgrest["empleados"]
+            .delete {
+                filter { Empleado::id eq id }
+            }
+    }
+}
+
+// ❌ BAD - Repository que retorna Flow o Result innecesariamente
+class EmpleadoRepository {
+    // ❌ No necesario para arquitectura cloud-first
+    fun obtenerTodos(): Flow<List<Empleado>> = flow { }
+    suspend fun insertar(emp: Empleado): Result<Empleado> = Result.success(emp)
+}
+```
+
+## Filtros y Queries
+
+```kotlin
+// ✅ GOOD - usar filtros de postgrest
+class EmpleadoRepository {
+
+    // Filtro simple
+    suspend fun buscarPorEmail(email: String): Empleado? =
+        supabase.postgrest["empleados"]
+            .select {
+                filter { Empleado::email eq email }
+            }
+            .decodeSingleOrNull<Empleado>()
+
+    // Múltiples filtros
+    suspend fun buscarPorCargoYSueldo(cargo: String, sueldoMin: Double): List<Empleado> =
+        supabase.postgrest["empleados"]
+            .select {
+                filter {
+                    Empleado::cargo eq cargo
+                    Empleado::sueldoDevengado gte sueldoMin
+                }
+            }
+            .decodeList<Empleado>()
+
+    // Ordenar
+    suspend fun obtenerOrdenadosPorNombre(): List<Empleado> =
+        supabase.postgrest["empleados"]
+            .select {
+                order(column = "nombre", ascending = true)
+            }
+            .decodeList<Empleado>()
+
+    // Paginación
+    suspend fun obtenerPagina(desde: Int, hasta: Int): List<Empleado> =
+        supabase.postgrest["empleados"]
+            .select {
+                range(desde, hasta)
+            }
+            .decodeList<Empleado>()
+
+    // Búsqueda de texto
+    suspend fun buscarPorNombre(query: String): List<Empleado> =
+        supabase.postgrest["empleados"]
+            .select {
+                filter {
+                    Empleado::nombre ilike "%$query%"
+                }
+            }
+            .decodeList<Empleado>()
+}
+```
+
+## Manejo de Errores
+
+```kotlin
+// ✅ GOOD - try-catch específico para errores de red/API
+class EmpleadoRepository {
+
+    suspend fun obtenerTodos(): List<Empleado> {
+        return try {
+            supabase.postgrest["empleados"]
+                .select()
+                .decodeList<Empleado>()
+        } catch (e: io.github.jan.supabase.exceptions.RestException) {
+            // Error de API (400, 404, 500, etc.)
+            println("Error de Supabase: ${e.error}")
+            emptyList()
+        } catch (e: Exception) {
+            // Error de red u otro
+            println("Error: ${e.message}")
+            emptyList()
+        }
+    }
+
+    suspend fun insertarConValidacion(empleado: Empleado): Empleado? {
+        return try {
+            supabase.postgrest["empleados"]
+                .insert(empleado) { select() }
+                .decodeSingle<Empleado>()
+        } catch (e: io.github.jan.supabase.exceptions.RestException) {
+            if (e.statusCode == 409) {
+                // Conflicto: email duplicado
+                println("Email ya existe")
+            }
+            null
+        }
+    }
+}
+
+// ❌ BAD - catch genérico sin manejo
+suspend fun obtenerTodos(): List<Empleado> {
+    return try {
+        supabase.postgrest["empleados"].select().decodeList()
+    } catch (e: Exception) {
+        // ❌ No hacer nada
+        emptyList()
+    }
+}
+```
+
+## Joins (Relaciones)
+
+```kotlin
+// ✅ GOOD - select con joins explícitos
+data class EmpleadoConDepartamento(
+    val id: String,
+    val nombre: String,
+    val departamento: Departamento
+)
+
+suspend fun obtenerConDepartamento(): List<EmpleadoConDepartamento> =
+    supabase.postgrest["empleados"]
+        .select(columns = Columns.raw("*, departamento:departamento_id(*)"))
+        .decodeList<EmpleadoConDepartamento>()
+
+// Foreign key: empleados.departamento_id -> departamentos.id
+```
+
+## RPC (Llamar Funciones Remotas)
+
+```kotlin
+// ✅ GOOD - usar RPC para funciones complejas en PostgreSQL
+class NominaRepository {
+
+    suspend fun calcularSueldoNeto(sueldoBruto: Double, deducciones: Double): Double {
+        val result = supabase.postgrest
+            .rpc(
+                function = "calcular_sueldo_neto",
+                parameters = mapOf(
+                    "sueldo_bruto" to sueldoBruto,
+                    "deducciones" to deducciones
+                )
+            )
+        return result.body<Double>()
+    }
+
+    suspend fun generarReporteNomina(mes: Int, anio: Int): List<ReporteItem> {
+        return supabase.postgrest
+            .rpc(
+                function = "generar_reporte_nomina",
+                parameters = mapOf("mes" to mes, "anio" to anio)
+            )
+            .decodeList<ReporteItem>()
+    }
+}
+```
+
+## Upsert
+
+```kotlin
+// ✅ GOOD - upsert (insert or update)
+suspend fun guardarEmpleado(empleado: Empleado): Empleado =
+    supabase.postgrest["empleados"]
+        .upsert(empleado) { select() }
+        .decodeSingle<Empleado>()
+
+// Requiere unique constraint en PostgreSQL (ej: email)
+```
+
+## Bulk Operations
+
+```kotlin
+// ✅ GOOD - insertar múltiples registros
+suspend fun insertarVarios(empleados: List<Empleado>) {
+    supabase.postgrest["empleados"]
+        .insert(empleados)
+}
+
+// Actualizar múltiples con filtro
+suspend fun aumentarSueldoPorCargo(cargo: String, porcentaje: Double) {
+    supabase.postgrest["empleados"]
+        .update({
+            // Construcción manual del campo
+            set("sueldo_devengado", "sueldo_devengado * $porcentaje")
+        }) {
+            filter { Empleado::cargo eq cargo }
+        }
+}
+```
+
+## Subscriptions (Realtime)
+
+```kotlin
+// ✅ GOOD - suscribirse a cambios en tiempo real
+import io.github.jan.supabase.realtime.realtime
+import io.github.jan.supabase.realtime.channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+
+class EmpleadoRepository {
+
+    fun observarCambios(): Flow<List<Empleado>> = flow {
+        val channel = supabase.realtime.channel("empleados-changes")
+        
+        channel.postgresChangeFlow<PostgresAction>(schema = "public") {
+            table = "empleados"
+        }.collect { action ->
+            when (action) {
+                is PostgresAction.Insert -> {
+                    val nuevo = action.record.decodeAs<Empleado>()
+                    // Emitir lista actualizada
+                }
+                is PostgresAction.Update -> {
+                    val actualizado = action.record.decodeAs<Empleado>()
+                }
+                is PostgresAction.Delete -> {
+                    val eliminado = action.oldRecord.decodeAs<Empleado>()
+                }
+            }
+        }
+        
+        channel.subscribe()
+    }
+}
+```
+
+## Naming Conventions
+
+- **Clase Repository:** `<Entidad>Repository` (ej: `EmpleadoRepository`)
+- **Métodos:**
+  - CREATE: `insertar()`, `crear()`
+  - READ: `obtenerTodos()`, `obtenerPorId()`, `buscarPor...()`
+  - UPDATE: `actualizar()`
+  - DELETE: `eliminar()`
+  - RPC: nombre descriptivo (`calcularSueldoNeto()`)
+
+## Convenciones
+
+1. **Todos los métodos son `suspend fun`** (operaciones async)
+2. **Retornar tipos directos** (`List<T>`, `T`, `T?`) no Flow ni Result
+3. **Usar `decodeSingle()` para uno**, `decodeList()` para muchos
+4. **Usar `decodeSingleOrNull()` cuando puede no existir**
+5. **Filtros con lambdas** (`filter { }`)
+6. **RLS protege los datos** (no lógica de permisos en Repository)

@@ -8,44 +8,28 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyecto.data.model.User
+import com.example.proyecto.ui.viewmodel.AbogadoViewModel
 
-private data class Lawyer(
-    val name: String,
-    val specialty: String,
-    val rating: Float,
-    val location: String,
-    val initial: String
-)
+private val ESPECIALIDADES = listOf("Todos", "Penal", "Civil", "Laboral", "Familia", "Comercial")
 
 @Composable
-fun LawyersScreen() {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedFilter by remember { mutableStateOf("Todos") }
-    var selectedLawyer by remember { mutableStateOf<Lawyer?>(null) }
-
-    val filters = listOf("Todos", "Penal", "Civil", "Laboral", "Familia")
-
-    val lawyers = listOf(
-        Lawyer("Dr. Carlos Ramírez", "Derecho Penal", 4.8f, "Bogotá", "CR"),
-        Lawyer("Dra. María López", "Derecho Civil", 4.9f, "Medellín", "ML"),
-        Lawyer("Dr. Andrés García", "Derecho Laboral", 4.7f, "Cali", "AG"),
-        Lawyer("Dra. Laura Martínez", "Derecho de Familia", 4.6f, "Barranquilla", "LM"),
-        Lawyer("Dr. Jorge Hernández", "Derecho Penal", 4.5f, "Cartagena", "JH")
-    )
-
-    val filteredLawyers = if (selectedFilter == "Todos") lawyers
-    else lawyers.filter { it.specialty.contains(selectedFilter, ignoreCase = true) }
+fun LawyersScreen(viewModel: AbogadoViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
+    var selectedAbogado by remember { mutableStateOf<User?>(null) }
 
     LazyColumn(
         modifier = Modifier
@@ -56,29 +40,36 @@ fun LawyersScreen() {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Text(
-                text = "Abogados",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Encuentra al profesional ideal",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.7f)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Abogados",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Encuentra al profesional ideal",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.7f)
+                    )
+                }
+                IconButton(onClick = { viewModel.cargarAbogados() }) {
+                    Icon(Icons.Filled.Refresh, contentDescription = "Recargar", tint = Color.White)
+                }
+            }
         }
 
-        // ── Barra de búsqueda ──
         item {
             OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+                value = uiState.busqueda,
+                onValueChange = { viewModel.buscar(it) },
                 placeholder = { Text("Buscar abogado...") },
-                leadingIcon = {
-                    Icon(Icons.Filled.Search, contentDescription = "Buscar")
-                },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Buscar") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -96,16 +87,13 @@ fun LawyersScreen() {
             )
         }
 
-        // ── Filtros ──
         item {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(filters) { filter ->
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(ESPECIALIDADES) { especialidad ->
                     FilterChip(
-                        selected = selectedFilter == filter,
-                        onClick = { selectedFilter = filter },
-                        label = { Text(filter) },
+                        selected = uiState.especialidadSeleccionada == especialidad,
+                        onClick = { viewModel.filtrarPorEspecialidad(especialidad) },
+                        label = { Text(especialidad) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = Color(0xFF3949AB),
                             selectedLabelColor = Color.White,
@@ -117,22 +105,53 @@ fun LawyersScreen() {
             }
         }
 
-        // ── Lista de abogados ──
-        items(filteredLawyers) { lawyer ->
-            LawyerCard(lawyer, onClick = { selectedLawyer = lawyer })
+        when {
+            uiState.isLoading -> item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF3949AB))
+                }
+            }
+            uiState.error != null -> item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF2D1B1B))
+                ) {
+                    Text(
+                        text = "Error: ${uiState.error}",
+                        color = Color(0xFFCF6679),
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+            uiState.abogadosFiltrados.isEmpty() -> item {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "No se encontraron abogados",
+                        color = Color.White.copy(alpha = 0.5f)
+                    )
+                }
+            }
+            else -> items(uiState.abogadosFiltrados) { abogado ->
+                AbogadoCard(abogado = abogado, onClick = { selectedAbogado = abogado })
+            }
         }
 
         item { Spacer(modifier = Modifier.height(8.dp)) }
     }
 
-    // ── Diálogo de perfil del abogado ──
-    selectedLawyer?.let { lawyer ->
+    selectedAbogado?.let { abogado ->
         AlertDialog(
-            onDismissRequest = { selectedLawyer = null },
+            onDismissRequest = { selectedAbogado = null },
             containerColor = Color(0xFF1E1E2E),
             title = {
                 Text(
-                    lawyer.name,
+                    abogado.nombre,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -140,25 +159,31 @@ fun LawyersScreen() {
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("💼 Especialidad: ${lawyer.specialty}", color = Color.White.copy(alpha = 0.9f))
-                    Text("⭐ Calificación: ${lawyer.rating} / 5.0", color = Color(0xFFFFA726))
-                    Text("📍 Ciudad: ${lawyer.location}", color = Color.White.copy(alpha = 0.7f))
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "Disponible para consultas en línea y presenciales.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    if (!abogado.especialidad.isNullOrBlank()) {
+                        Text("Especialidad: ${abogado.especialidad}", color = Color.White.copy(alpha = 0.9f))
+                    }
+                    abogado.calificacionPromedio?.let {
+                        Text("Calificación: $it / 5.0", color = Color(0xFFFFA726))
+                    }
+                    abogado.experiencia?.let {
+                        Text("Experiencia: $it años", color = Color.White.copy(alpha = 0.7f))
+                    }
+                    abogado.descripcion?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.6f))
+                    }
+                    abogado.telefono?.let {
+                        Text("Tel: $it", color = Color.White.copy(alpha = 0.7f))
+                    }
                 }
             },
             confirmButton = {
                 Button(
-                    onClick = { selectedLawyer = null },
+                    onClick = { selectedAbogado = null },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3949AB))
                 ) { Text("Solicitar consulta") }
             },
             dismissButton = {
-                TextButton(onClick = { selectedLawyer = null }) {
+                TextButton(onClick = { selectedAbogado = null }) {
                     Text("Cerrar", color = Color.White.copy(alpha = 0.7f))
                 }
             }
@@ -167,17 +192,17 @@ fun LawyersScreen() {
 }
 
 @Composable
-private fun LawyerCard(lawyer: Lawyer, onClick: () -> Unit = {}) {
+private fun AbogadoCard(abogado: User, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2E))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2E)),
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar con iniciales
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -186,7 +211,7 @@ private fun LawyerCard(lawyer: Lawyer, onClick: () -> Unit = {}) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = lawyer.initial,
+                    text = abogado.initials,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -197,14 +222,14 @@ private fun LawyerCard(lawyer: Lawyer, onClick: () -> Unit = {}) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = lawyer.name,
+                    text = abogado.nombre,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = lawyer.specialty,
+                    text = abogado.especialidad ?: "Abogado",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF3949AB)
                 )
@@ -218,23 +243,18 @@ private fun LawyerCard(lawyer: Lawyer, onClick: () -> Unit = {}) {
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = lawyer.rating.toString(),
+                        text = abogado.calificacionPromedio?.let { "%.1f".format(it) } ?: "N/A",
                         style = MaterialTheme.typography.labelMedium,
                         color = Color.White.copy(alpha = 0.8f)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Icon(
-                        Icons.Filled.LocationOn,
-                        contentDescription = "Ubicación",
-                        tint = Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = lawyer.location,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                    abogado.experiencia?.let { exp ->
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "$exp años exp.",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
 
@@ -242,9 +262,7 @@ private fun LawyerCard(lawyer: Lawyer, onClick: () -> Unit = {}) {
                 onClick = onClick,
                 shape = RoundedCornerShape(20.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0xFF3949AB)
-                )
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF3949AB))
             ) {
                 Text("Ver", style = MaterialTheme.typography.labelMedium)
             }

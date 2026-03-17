@@ -1,0 +1,144 @@
+---
+description: Contexto principal del proyecto LexSign - app legal KMP con arquitectura cloud-first sobre Supabase PostgreSQL
+alwaysApply: true
+---
+
+# Proyecto LexSign - Kotlin Multiplatform
+
+## Arquitectura Cloud-First
+
+**Stack Tecnológico:**
+- **Base de Datos:** Supabase 3.3.0 (PostgreSQL remoto)
+- **HTTP Client:** Ktor 3.1.1 (Android + Darwin)
+- **UI:** Compose Multiplatform 1.8.0
+- **Serialización:** Kotlinx Serialization
+- **Schema Management:** Supabase CLI (migraciones)
+
+**Flujo de Datos:**
+```
+KMP App (Android + iOS)
+    ↓ supabase-kt (postgrest-kt)
+    ↓ HTTPS / REST
+Supabase PostgreSQL
+```
+
+1. Todas las lecturas/escrituras van directo a Supabase (PostgreSQL remoto)
+2. No hay almacenamiento local (no SQLDelight)
+3. Supabase CLI gestiona el schema como "ORM"
+4. Row Level Security (RLS) protege los datos
+
+## Estructura del Proyecto
+
+```
+composeApp/
+├── src/commonMain/
+│   └── kotlin/
+│       ├── data/           # Repositorios, modelos, SupabaseClient
+│       ├── presentation/   # ViewModels
+│       ├── ui/             # Screens (Compose), Theme
+│       └── navigation/     # Navegación
+├── src/androidMain/        # Ktor Android client
+├── src/iosMain/            # Ktor Darwin client
+└── supabase/
+    ├── schemas/            # Definiciones SQL declarativas
+    └── migrations/         # SQL generado por CLI
+```
+
+## Patrones de Código
+
+### Repository Pattern
+- Métodos `suspend` que usan `supabase.postgrest`
+- Maneja queries con `.select()`, `.insert()`, `.update()`, `.delete()`
+- Retorna `List<T>` o `T` directamente (no Flow ni Result)
+- Ejemplos reales: `UserRepository`, `ConsultaRepository`, `DocumentoRepository`
+
+### ViewModel Pattern
+- Extiende `androidx.lifecycle.ViewModel`
+- Mantiene estado con `StateFlow<T>` o `mutableStateOf`
+- NO mantiene referencia a `Context`
+- Usa `viewModelScope.launch` para coroutines
+- Ejemplos reales: `AuthViewModel`, `ConsultaViewModel`
+
+### Supabase Client
+- Singleton en `commonMain/data/SupabaseClient.kt`
+- Instala Postgrest, Auth, Realtime
+- Usa `anon` key (NUNCA `service_role` en app)
+
+## Supabase CLI (Schema Management)
+
+El CLI es el "ORM" para gestión del schema:
+
+```bash
+# Schemas declarativos en:
+# supabase/schemas/users.sql
+# supabase/schemas/consultas.sql
+# supabase/schemas/documentos.sql
+
+# Generar migración
+supabase db diff --schema public -f nombre_migracion
+
+# Aplicar a remoto
+supabase db push
+```
+
+## Entidades Principales del Proyecto
+
+| Entidad | Tabla | Campos clave |
+|---------|-------|-------------|
+| `Usuario` | `users` | `id`, `nombre`, `email`, `password`, `tipo` ('cliente'\|'abogado'), `tarjeta` |
+| `Consulta` | `consultas` | `id`, `cliente_id`, `abogado_id`, `descripcion`, `estado`, `fecha_consulta` |
+| `Documento` | `documentos` | `id`, `consulta_id`, `nombre`, `url`, `tipo` |
+
+## Pantallas Existentes
+
+| Screen | Ruta | Descripción |
+|--------|------|-------------|
+| `WelcomeScreen` | `/` | Inicio — elegir tipo usuario |
+| `LoginClienteScreen` | `/cliente/login` | Login email + password |
+| `LoginAbogadoScreen` | `/abogado/login` | Login email + tarjeta + password |
+| `RegisterClienteScreen` | `/cliente/register` | Registro de clientes |
+| `MainScreen` | `/main` | Home post-login |
+
+## Comandos Importantes
+
+**Build Android:**
+```bash
+.\gradlew.bat :composeApp:assembleDebug
+```
+
+**Build iOS:**
+Abrir `iosApp/iosApp.xcodeproj` en Xcode
+
+**Supabase Schema:**
+```bash
+# Inicializar proyecto
+supabase init
+
+# Vincular proyecto remoto
+supabase link --project-ref TU_PROJECT_REF
+
+# Generar migración desde schema declarativo
+supabase db diff --schema public -f nombre_cambio
+
+# Aplicar migraciones
+supabase db push
+```
+
+## Datos de Prueba
+
+**Clientes:**
+- cliente1@example.com / password123
+- cliente2@example.com / password123
+
+**Abogados:**
+- abogado1@example.com / TARJ-001 / password123
+- abogado2@example.com / TARJ-002 / password123
+
+## Convenciones
+
+- Modelos son `@Serializable data class` en `data/model/`
+- Usar `@SerialName` para mapear nombres de columnas PostgreSQL
+- Repositories usan `suspend fun` para operaciones async
+- ViewModels exponen `StateFlow<T>` para estado reactivo
+- RLS Policies en Supabase protegen los datos (no lógica en app)
+- IDs son `uuid` generados por PostgreSQL (no autoincrementales)

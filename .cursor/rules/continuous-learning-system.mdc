@@ -1,0 +1,379 @@
+---
+description: Sistema de aprendizaje continuo - testing, builds y memoria de acciones
+alwaysApply: true
+---
+
+# Sistema de Aprendizaje Continuo y Testing
+
+Este sistema implementa un ciclo de aprendizaje donde cada acción se documenta, se prueba, y se aprende de los errores.
+
+## Principio Fundamental
+
+**CADA FASE DE UN PLAN DEBE:**
+1. ✅ Ejecutarse completamente
+2. ✅ Probarse (test o build según aplique)
+3. ✅ Documentarse en `.cursor/memory/`
+4. ✅ Aprender de errores si falló
+
+## Workflow por Fases
+
+### Fase 1: Planificación
+```
+Cuando el usuario solicite una tarea compleja:
+1. Crear TodoWrite con fases numeradas
+2. Crear archivo de memoria: .cursor/memory/YYYY-MM-DD_HH-mm_<tarea>.md
+3. Documentar el plan completo en memoria
+```
+
+### Fase 2: Ejecución por Fase
+```
+Para cada fase del plan:
+1. Ejecutar cambios de código
+2. Documentar cambios en memoria (qué archivos, qué se modificó)
+3. OBLIGATORIO: Ejecutar test/build
+4. Documentar resultado en memoria
+5. Si falla:
+   a. Analizar error
+   b. Documentar causa en memoria
+   c. Corregir
+   d. Re-ejecutar test/build
+   e. Documentar corrección
+6. Si pasa:
+   a. Marcar fase como completada
+   b. Continuar siguiente fase
+```
+
+### Fase 3: Aprendizaje Post-Ejecución
+```
+Al finalizar TODAS las fases:
+1. Crear entrada en .cursor/memory/learnings.md
+2. Documentar:
+   - ¿Qué funcionó bien?
+   - ¿Qué falló y por qué?
+   - ¿Cómo se resolvió?
+   - ¿Qué hacer diferente la próxima vez?
+```
+
+## Tipos de Verificación por Contexto
+
+### Para Cambios en Kotlin
+```bash
+# BUILD obligatorio después de cambios
+.\gradlew.bat :composeApp:build
+
+# Si falla, leer error y corregir
+# Documentar en memoria
+```
+
+### Para Cambios en Schema SQL (Supabase)
+```bash
+# Validar sintaxis
+supabase db lint
+
+# Generar migración
+supabase db diff --schema public -f nombre_cambio
+
+# Aplicar (DRY RUN primero si es crítico)
+supabase db push --dry-run
+supabase db push
+
+# Documentar en memoria
+```
+
+### Para Cambios en UI (Compose)
+```bash
+# Build de debug
+.\gradlew.bat :composeApp:assembleDebug
+
+# Si hay Preview, verificar que compile
+# Documentar en memoria
+```
+
+### Para Cambios en Repositories
+```bash
+# Build completo
+.\gradlew.bat :composeApp:build
+
+# Si existen tests unitarios, ejecutarlos
+.\gradlew.bat :composeApp:testDebugUnitTest
+
+# Documentar en memoria
+```
+
+## Estructura de Archivo de Memoria
+
+```markdown
+# Tarea: [Nombre de la tarea]
+**Fecha:** YYYY-MM-DD HH:mm
+**Status:** [En Progreso | Completado | Fallido]
+
+## Plan Original
+- [ ] Fase 1: ...
+- [ ] Fase 2: ...
+- [ ] Fase 3: ...
+
+## Ejecución Detallada
+
+### Fase 1: [Nombre]
+**Inicio:** HH:mm
+**Archivos modificados:**
+- `path/to/file1.kt` - [Descripción del cambio]
+- `path/to/file2.kt` - [Descripción del cambio]
+
+**Test ejecutado:**
+```bash
+.\gradlew.bat :composeApp:build
+```
+
+**Resultado:** ✅ Exitoso / ❌ Fallido
+
+**Errores (si aplica):**
+```
+[Error detallado]
+```
+
+**Análisis del error:**
+- Causa: [Explicación]
+- Solución aplicada: [Qué se hizo]
+
+**Corrección realizada:**
+- Archivo: `path/to/file.kt`
+- Cambio: [Descripción]
+
+**Re-test:**
+```bash
+.\gradlew.bat :composeApp:build
+```
+**Resultado:** ✅ Exitoso
+
+**Fin:** HH:mm
+**Duración:** X minutos
+
+---
+
+### Fase 2: [Nombre]
+[... mismo formato ...]
+
+## Resumen Final
+**Total de fases:** X
+**Fases exitosas:** X
+**Fases con errores:** X
+**Tiempo total:** X minutos
+
+## Lecciones Aprendidas
+1. **¿Qué funcionó bien?**
+   - [Lista de prácticas exitosas]
+
+2. **¿Qué falló?**
+   - [Lista de problemas encontrados]
+
+3. **Causas raíz de errores:**
+   - [Análisis de por qué fallaron las cosas]
+
+4. **Soluciones aplicadas:**
+   - [Qué se hizo para resolver]
+
+5. **Para próximas veces:**
+   - [Mejoras a aplicar en futuras tareas similares]
+   - [Patrones a seguir]
+   - [Anti-patrones a evitar]
+
+## Referencias
+- Archivos relevantes: [lista]
+- Commits relacionados: [lista si aplica]
+- Documentación consultada: [lista]
+```
+
+## Archivo de Aprendizajes Acumulados
+
+En `.cursor/memory/learnings.md`, mantener un registro acumulativo:
+
+```markdown
+# Aprendizajes Acumulados - LexSign
+
+## Patrones Exitosos
+
+### Repository con Supabase
+**Aprendido:** 2026-03-16
+**Contexto:** Creación de EmpleadoRepository
+**Patrón:**
+```kotlin
+suspend fun obtener(): List<T> = supabase.postgrest["tabla"].select().decodeList()
+```
+**Razón del éxito:** Simple, directo, sin abstracciones innecesarias
+
+---
+
+### Schema SQL con RLS
+**Aprendido:** 2026-03-16
+**Contexto:** Migración de tabla empleados
+**Patrón:**
+```sql
+alter table public.empleados enable row level security;
+create policy "Ver propios datos" on public.empleados for select using (auth.uid() = id);
+```
+**Razón del éxito:** Seguridad en servidor, no en app
+
+## Errores Comunes y Soluciones
+
+### Error: Serialization exception
+**Frecuencia:** 3 veces
+**Contexto:** Data classes sin @SerialName
+**Causa:** Columnas en DB usan snake_case, Kotlin usa camelCase
+**Solución:**
+```kotlin
+@SerialName("nombre_completo")
+val nombreCompleto: String
+```
+**Prevención:** SIEMPRE usar @SerialName para campos snake_case
+
+---
+
+### Error: Build failed - unresolved reference
+**Frecuencia:** 5 veces
+**Contexto:** Imports incorrectos o typos
+**Causa:** No verificar nombres exactos antes de usar
+**Solución:** Usar IDE autocomplete o verificar imports
+**Prevención:** Leer archivos existentes antes de referenciar
+
+## Anti-Patrones Detectados
+
+### ❌ Usar Flow innecesariamente
+**Detectado:** 2 veces
+**Problema:** Flow<List<T>> para arquitectura cloud-first
+**Correcto:** suspend fun obtener(): List<T>
+**Razón:** No hay storage local, no necesitamos observabilidad reactiva local
+
+---
+
+### ❌ IDs obligatorios en modelos
+**Detectado:** 3 veces
+**Problema:** val id: String (no nullable)
+**Correcto:** val id: String? = null
+**Razón:** PostgreSQL genera el UUID, no debe ser obligatorio al insertar
+
+## Métricas de Aprendizaje
+
+**Total de tareas documentadas:** X
+**Errores resueltos:** X
+**Patrones identificados:** X
+**Anti-patrones evitados después de documentar:** X
+**Tasa de éxito en builds (últimas 10 tareas):** X%
+```
+
+## Reglas de Ejecución
+
+### SIEMPRE
+
+1. **Documentar ANTES de ejecutar**
+   - Crear archivo de memoria con el plan
+   - Fecha, hora, objetivos claros
+
+2. **Test/Build DESPUÉS de cada fase**
+   - No avanzar sin verificar
+   - Documentar resultado (exitoso o fallido)
+
+3. **Analizar errores INMEDIATAMENTE**
+   - No ignorar warnings
+   - Documentar causa raíz
+   - Documentar solución aplicada
+
+4. **Actualizar learnings.md AL FINALIZAR**
+   - Agregar nuevos patrones exitosos
+   - Agregar nuevos errores resueltos
+   - Actualizar frecuencias de errores
+
+### NUNCA
+
+1. ❌ Avanzar a siguiente fase sin test/build exitoso
+2. ❌ Ignorar errores de compilación
+3. ❌ Dejar archivos de memoria incompletos
+4. ❌ Olvidar documentar soluciones a errores
+
+## Comandos de Verificación por Tecnología
+
+```bash
+# Kotlin (cambios generales)
+.\gradlew.bat :composeApp:build
+
+# Android específico
+.\gradlew.bat :composeApp:assembleDebug
+
+# Tests unitarios (si existen)
+.\gradlew.bat :composeApp:testDebugUnitTest
+
+# Supabase schema
+supabase db lint
+supabase db diff --schema public -f test_cambio
+supabase db push --dry-run
+
+# Ver errores de linter (después de cambios)
+# Usar ReadLints tool
+```
+
+## Ejemplo Completo de Ejecución
+
+```
+Usuario: "Crea un módulo de autenticación completa"
+
+1. Crear .cursor/memory/2026-03-16_14-30_autenticacion-completa.md
+2. Documentar plan:
+   - Fase 1: Crear tabla users en Supabase
+   - Fase 2: Crear modelo User.kt
+   - Fase 3: Crear AuthRepository
+   - Fase 4: Crear AuthViewModel
+   - Fase 5: Crear LoginScreen
+
+3. FASE 1:
+   - Crear supabase/schemas/users.sql
+   - supabase db diff -f crear_users
+   - supabase db push
+   - Documentar resultado en memoria ✅
+
+4. FASE 2:
+   - Crear data/model/User.kt
+   - .\gradlew.bat :composeApp:build
+   - Documentar resultado en memoria
+   - Error: Unresolved reference 'SerialName'
+   - Documentar error
+   - Agregar import kotlinx.serialization.SerialName
+   - Re-build
+   - Documentar corrección ✅
+
+5. FASE 3-5: [mismo proceso]
+
+6. Al finalizar:
+   - Actualizar learnings.md
+   - Agregar: "Import de SerialName necesario para @SerialName"
+   - Agregar frecuencia de ese error
+   - Actualizar métricas
+```
+
+## Integración con TodoWrite
+
+Cuando uses TodoWrite, estructura así:
+
+```kotlin
+TodoWrite(
+    todos = [
+        { id: "fase1", content: "Crear schema SQL + TEST (supabase db push)", status: "in_progress" },
+        { id: "fase2", content: "Crear modelo + BUILD (gradlew build)", status: "pending" },
+        { id: "fase3", content: "Crear repository + BUILD", status: "pending" },
+        { id: "fase4", content: "Actualizar memoria y learnings", status: "pending" }
+    ],
+    merge: false
+)
+```
+
+## Beneficios de Este Sistema
+
+1. **Trazabilidad completa** - Cada acción documentada
+2. **Aprendizaje real** - No repetir errores
+3. **Debugging más rápido** - Historia de errores similares
+4. **Mejora continua** - Identificar patrones buenos y malos
+5. **Contexto persistente** - Memoria entre sesiones
+6. **Builds confiables** - Verificación constante
+
+---
+
+**Recuerda:** Este sistema solo funciona si se sigue ESTRICTAMENTE. No hay atajos.

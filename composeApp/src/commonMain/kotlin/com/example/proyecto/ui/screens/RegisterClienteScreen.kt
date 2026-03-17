@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,17 +25,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.proyecto.data.AppContainer
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.navigation.Routes
 import com.example.proyecto.ui.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterClienteScreen(navController: NavController) {
-    val coroutineScope = rememberCoroutineScope()
-    val viewModel = remember { AuthViewModel(AppContainer.userRepository, coroutineScope) }
+    val viewModel: AuthViewModel = viewModel()
     
+    val isLoading by viewModel.isLoading.collectAsState()
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -220,9 +221,9 @@ fun RegisterClienteScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A237E)),
-                enabled = !viewModel.isLoading
+                enabled = !isLoading
             ) {
-                if (viewModel.isLoading) {
+                if (isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         color = Color.White

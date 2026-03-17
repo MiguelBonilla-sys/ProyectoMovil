@@ -1,4 +1,5 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+@file:Suppress("DEPRECATION")
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -8,7 +9,6 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.sqldelight)
     alias(libs.plugins.buildconfig)
 }
 
@@ -19,7 +19,6 @@ if (envFile.exists()) {
     envFile.inputStream().use { envProperties.load(it) }
 }
 
-// Function to get environment variable with fallback to placeholder
 fun getEnvOrDefault(key: String, default: String): String {
     return envProperties.getProperty(key) ?: System.getenv(key) ?: default
 }
@@ -45,7 +44,6 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.sqldelight.android)
             implementation(libs.ktor.android)
         }
         commonMain.dependencies {
@@ -58,37 +56,25 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.navigation.compose)
+            @Suppress("DEPRECATION")
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.sqldelight.coroutines)
             implementation(libs.supabase.postgrest)
             implementation(libs.supabase.auth)
             implementation(libs.supabase.realtime)
+            implementation(libs.supabase.storage)
         }
         iosMain.dependencies {
-            implementation(libs.sqldelight.native)
             implementation(libs.ktor.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
     }
-    
-    // SQLDelight configuration
-    sqldelight {
-        databases {
-            create("LexSignDatabase") {
-                packageName.set("com.example.proyecto.database")
-            }
-        }
-    }
 }
 
-// BuildConfig configuration
 buildConfig {
     packageName("com.example.proyecto")
-    
-    // Generate BuildConfig fields from .env file
     buildConfigField(
         "SUPABASE_URL",
         getEnvOrDefault("SUPABASE_URL", "YOUR_SUPABASE_URL_HERE")

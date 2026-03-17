@@ -1,23 +1,21 @@
 package com.example.proyecto.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.outlined.Chat
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.People
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.proyecto.data.session.SessionManager
+import com.example.proyecto.ui.viewmodel.NotificacionViewModel
 
 private data class BottomNavItem(
     val label: String,
@@ -26,16 +24,25 @@ private data class BottomNavItem(
 )
 
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(
+    navController: NavController,
+    notificacionViewModel: NotificacionViewModel = viewModel()
+) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    val currentUser = SessionManager.currentUser
+    val isAdmin = currentUser?.esAdmin == true
 
-    val navItems = listOf(
-        BottomNavItem("Inicio", Icons.Filled.Home, Icons.Outlined.Home),
-        BottomNavItem("Abogados", Icons.Filled.People, Icons.Outlined.People),
-        BottomNavItem("Documentos", Icons.Filled.Description, Icons.Outlined.Description),
-        BottomNavItem("Consultas", Icons.AutoMirrored.Filled.Chat, Icons.AutoMirrored.Outlined.Chat),
-        BottomNavItem("Perfil", Icons.Filled.Person, Icons.Outlined.Person)
-    )
+    val notifState by notificacionViewModel.uiState.collectAsState()
+    val noLeidas = notifState.noLeidas
+
+    val navItems = buildList {
+        add(BottomNavItem("Inicio", Icons.Filled.Home, Icons.Outlined.Home))
+        add(BottomNavItem("Abogados", Icons.Filled.People, Icons.Outlined.People))
+        add(BottomNavItem("Documentos", Icons.Filled.Description, Icons.Outlined.Description))
+        add(BottomNavItem("Consultas", Icons.AutoMirrored.Filled.Chat, Icons.AutoMirrored.Outlined.Chat))
+        add(BottomNavItem("Perfil", Icons.Filled.Person, Icons.Outlined.Person))
+        if (isAdmin) add(BottomNavItem("Reportes", Icons.Filled.Analytics, Icons.Outlined.Analytics))
+    }
 
     Scaffold(
         containerColor = Color(0xFF0D0D1A),
@@ -49,11 +56,19 @@ fun MainScreen(navController: NavController) {
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
                         icon = {
-                            Icon(
-                                imageVector = if (selectedTab == index) item.selectedIcon
-                                else item.unselectedIcon,
-                                contentDescription = item.label
-                            )
+                            if (index == 4 && noLeidas > 0) {
+                                BadgedBox(badge = { Badge { Text(if (noLeidas > 9) "9+" else noLeidas.toString()) } }) {
+                                    Icon(
+                                        imageVector = if (selectedTab == index) item.selectedIcon else item.unselectedIcon,
+                                        contentDescription = item.label
+                                    )
+                                }
+                            } else {
+                                Icon(
+                                    imageVector = if (selectedTab == index) item.selectedIcon else item.unselectedIcon,
+                                    contentDescription = item.label
+                                )
+                            }
                         },
                         label = { Text(item.label) },
                         colors = NavigationBarItemDefaults.colors(
@@ -75,6 +90,7 @@ fun MainScreen(navController: NavController) {
                 2 -> DocumentsScreen()
                 3 -> ConsultationsScreen()
                 4 -> ProfileScreen(navController = navController)
+                5 -> if (isAdmin) ReportesScreen()
             }
         }
     }

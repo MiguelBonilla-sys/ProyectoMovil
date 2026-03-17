@@ -1,0 +1,178 @@
+---
+description: Estándares de código Kotlin para LexSign
+globs: **/*.kt
+alwaysApply: false
+---
+
+# Kotlin Standards
+
+## Coroutines y Async
+
+```kotlin
+// ✅ GOOD - usar suspend functions
+suspend fun fetchUser(id: Long): Result<User> {
+    return try {
+        val user = database.getUserById(id)
+        Result.success(user)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}
+
+// ❌ BAD - no usar callbacks anidados
+fun fetchUser(id: Long, callback: (User?) -> Unit) {
+    // Evitar este patrón
+}
+```
+
+## Repository Pattern
+
+```kotlin
+// ✅ GOOD - Repository con suspend functions y tipos directos
+// Ejemplo real del proyecto: UserRepository
+class UserRepository {
+    suspend fun obtenerTodos(): List<Usuario> =
+        supabase.postgrest["users"]
+            .select()
+            .decodeList<Usuario>()
+    
+    suspend fun registrarCliente(usuario: Usuario): Usuario =
+        supabase.postgrest["users"]
+            .insert(usuario) { select() }
+            .decodeSingle<Usuario>()
+    
+    suspend fun obtenerPorEmail(email: String): Usuario? =
+        supabase.postgrest["users"]
+            .select { filter { Usuario::email eq email } }
+            .decodeSingleOrNull<Usuario>()
+    
+    suspend fun autenticarCliente(email: String, password: String): Usuario? =
+        supabase.postgrest["users"]
+            .select {
+                filter {
+                    Usuario::email eq email
+                    Usuario::password eq password  // debe ser hash PBKDF2
+                    Usuario::tipo eq "cliente"
+                }
+            }
+            .decodeSingleOrNull<Usuario>()
+}
+
+// ❌ BAD - no usar Flow o Result innecesariamente
+fun obtenerTodos(): Flow<List<Usuario>> = flow { }  // ❌ No hay BD local que observar
+suspend fun registrar(u: Usuario): Result<Usuario> = Result.success(u)  // ❌ Innecesario
+```
+
+## ViewModel Pattern
+
+```kotlin
+// ✅ GOOD - ViewModel con StateFlow (androidx.lifecycle)
+// Ejemplo real del proyecto: AuthViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class AuthViewModel(
+    private val repository: UserRepository = UserRepository()
+) : ViewModel() {
+
+    private val _usuario = MutableStateFlow<Usuario?>(null)
+    val usuario: StateFlow<Usuario?> = _usuario
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
+    fun loginCliente(
+        email: String,
+        password: String,
+        onSuccess: (Usuario) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                val user = repository.autenticarCliente(email, password)
+                if (user != null) {
+                    _usuario.value = user
+                    onSuccess(user)
+                } else {
+                    _error.value = "Credenciales inválidas"
+                    onError("Credenciales inválidas")
+                }
+            } catch (e: Exception) {
+                _error.value = e.message
+                onError(e.message ?: "Error desconocido")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+}
+
+// ❌ BAD - ViewModel con Context o navegación directa
+class AuthViewModel(
+    private val context: Context,         // ❌ NO
+    private val navController: NavController  // ❌ NO
+) { }
+```
+
+## Error Handling
+
+```kotlin
+// ✅ GOOD - try-catch específico para errores de Supabase
+import io.github.jan.supabase.exceptions.RestException
+
+suspend fun obtenerEmpleados(): List<Empleado> {
+    return try {
+        supabase.postgrest["empleados"]
+            .select()
+            .decodeList<Empleado>()
+    } catch (e: RestException) {
+        // Error de API (400, 404, 500, etc.)
+        println("Error de Supabase: ${e.error}, código: ${e.statusCode}")
+        emptyList()
+    } catch (e: Exception) {
+        // Error de red u otro
+        println("Error: ${e.message}")
+        emptyList()
+    }
+}
+
+// ❌ BAD - catch genérico sin manejo
+try {
+    supabase.postgrest["empleados"].select().decodeList()
+} catch (e: Exception) {
+    // ❌ Ignorar sin logging
+}
+```
+
+## Null Safety
+
+```kotlin
+// ✅ GOOD - manejar nulls explícitamente
+val user = repository.getUserByEmail(email)
+if (user != null) {
+    onSuccess(user)
+} else {
+    onError("Usuario no encontrado")
+}
+
+// ✅ GOOD - usar elvis operator
+val userName = user?.nombre ?: "Anónimo"
+
+// ❌ BAD - usar !! (force unwrap)
+val userName = user!!.nombre // ❌ Evitar
+```
+
+## Naming Conventions
+
+- **Variables/Functions:** camelCase (`getUserById`, `isLoading`)
+- **Classes:** PascalCase (`UserRepository`, `AuthViewModel`)
+- **Constants:** SCREAMING_SNAKE_CASE (`MAX_RETRY_ATTEMPTS`)
+- **Packages:** lowercase (`com.example.proyecto.data`)

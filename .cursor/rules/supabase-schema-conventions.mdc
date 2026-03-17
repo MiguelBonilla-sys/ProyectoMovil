@@ -1,0 +1,207 @@
+---
+description: Convenciones para schemas SQL con Supabase CLI
+globs: supabase/schemas/**/*.sql
+alwaysApply: false
+---
+
+# Supabase Schema Conventions
+
+## Schema Declarativo
+
+```sql
+-- ✅ GOOD - schema declarativo en supabase/schemas/
+-- supabase/schemas/empleados.sql
+create table public.empleados (
+  id            uuid primary key default gen_random_uuid(),
+  identificacion text not null unique,
+  nombre        text not null,
+  apellidos     text not null,
+  email         text not null unique,
+  cargo         text not null,
+  sueldo_devengado numeric(12,2) not null,
+  created_at    timestamptz default now(),
+  updated_at    timestamptz default now()
+);
+
+-- ❌ BAD - no usar AUTOINCREMENT (esto es SQLite, no PostgreSQL)
+create table empleados (
+  id integer primary key autoincrement  -- ❌ Incorrecto
+);
+```
+
+## IDs con UUID
+
+```sql
+-- ✅ GOOD - usar uuid con gen_random_uuid()
+id uuid primary key default gen_random_uuid()
+
+-- ❌ BAD - IDs seriales (menos flexibles para distribución)
+id serial primary key
+```
+
+## Timestamps
+
+```sql
+-- ✅ GOOD - timestamptz (timezone-aware)
+created_at timestamptz default now()
+updated_at timestamptz default now()
+
+-- ❌ BAD - timestamp sin timezone
+created_at timestamp default now()
+```
+
+## Row Level Security (RLS)
+
+```sql
+-- ✅ GOOD - siempre habilitar RLS
+alter table public.empleados enable row level security;
+
+-- Política: usuarios autenticados pueden ver sus propios datos
+create policy "Ver propios datos"
+  on public.empleados for select
+  using (auth.uid() = id);
+
+-- Política: usuarios pueden insertar sus propios datos
+create policy "Insertar propios datos"
+  on public.empleados for insert
+  with check (auth.uid() = id);
+
+-- ❌ BAD - tabla sin RLS (expone todos los datos)
+create table empleados (...);
+-- Sin 'alter table ... enable row level security'
+```
+
+## Foreign Keys
+
+```sql
+-- ✅ GOOD - nombrar archivos en orden para dependencias
+-- supabase/schemas/01_empleados.sql
+create table public.empleados (
+  id uuid primary key default gen_random_uuid(),
+  nombre text not null
+);
+
+-- supabase/schemas/02_nominas.sql (depende de empleados)
+create table public.nominas (
+  id uuid primary key default gen_random_uuid(),
+  empleado_id uuid not null references public.empleados(id) on delete cascade,
+  monto numeric(12,2) not null
+);
+```
+
+## Índices
+
+```sql
+-- ✅ GOOD - crear índices para columnas de búsqueda frecuente
+create index idx_empleados_email on public.empleados(email);
+create index idx_empleados_identificacion on public.empleados(identificacion);
+
+-- Para búsquedas de texto
+create index idx_empleados_nombre_gin on public.empleados using gin(to_tsvector('spanish', nombre));
+```
+
+## Constraints
+
+```sql
+-- ✅ GOOD - usar constraints para validación
+create table public.empleados (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$'),
+  sueldo_devengado numeric(12,2) not null check (sueldo_devengado > 0),
+  tipo_empleado text not null check (tipo_empleado in ('planta', 'contratista', 'temporal'))
+);
+
+-- ❌ BAD - validación solo en app (puede evadirse)
+create table empleados (
+  email text not null,
+  sueldo numeric
+);
+```
+
+## Triggers para updated_at
+
+```sql
+-- ✅ GOOD - trigger para actualizar updated_at automáticamente
+create or replace function public.handle_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger set_updated_at
+  before update on public.empleados
+  for each row
+  execute function public.handle_updated_at();
+```
+
+## Workflow de Migraciones
+
+```bash
+# 1. Editar schema declarativo
+# supabase/schemas/empleados.sql
+
+# 2. Generar migración con diff
+supabase db diff --schema public -f agregar_campo_departamento
+
+# 3. Revisar migración generada
+# supabase/migrations/20260316120000_agregar_campo_departamento.sql
+
+# 4. Aplicar a remoto
+supabase db push
+```
+
+## Enums (Tipos Personalizados)
+
+```sql
+-- ✅ GOOD - usar tipos enum para valores fijos
+create type tipo_empleado_enum as enum ('planta', 'contratista', 'temporal');
+
+create table public.empleados (
+  id uuid primary key default gen_random_uuid(),
+  tipo tipo_empleado_enum not null default 'planta'
+);
+
+-- ❌ BAD - usar text sin constraint
+tipo text not null  -- Puede recibir cualquier valor
+```
+
+## Funciones y Stored Procedures
+
+```sql
+-- ✅ GOOD - crear funciones reutilizables
+create or replace function public.calcular_sueldo_neto(
+  sueldo_bruto numeric,
+  deducciones numeric
+)
+returns numeric as $$
+begin
+  return sueldo_bruto - deducciones;
+end;
+$$ language plpgsql;
+
+-- Uso desde Repository:
+-- supabase.postgrest.rpc("calcular_sueldo_neto", mapOf("sueldo_bruto" to 5000, "deducciones" to 500))
+```
+
+## Naming Conventions
+
+- **Tablas:** snake_case plural (`empleados`, `nominas`)
+- **Columnas:** snake_case (`sueldo_devengado`, `created_at`)
+- **Índices:** `idx_tabla_columna` (`idx_empleados_email`)
+- **Políticas RLS:** Descriptivo en español (`"Ver propios datos"`)
+- **Funciones:** snake_case con verbo (`calcular_sueldo_neto`)
+- **Schemas:** `public` (o específico del dominio)
+
+## Schema vs Migration
+
+**Schema declarativo** (`supabase/schemas/*.sql`):
+- Define el estado deseado
+- Se edita directamente
+- `supabase db diff` genera la migración
+
+**Migración** (`supabase/migrations/*.sql`):
+- Instrucciones imperativas (ALTER TABLE, etc.)
+- Generada automáticamente
+- NO se edita manualmente (regenerar con `db diff`)

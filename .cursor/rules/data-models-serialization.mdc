@@ -1,0 +1,280 @@
+---
+description: Patrones para modelos de datos con Kotlinx Serialization
+globs: **/model/**/*.kt
+alwaysApply: false
+---
+
+# Data Models con Kotlinx Serialization
+
+## Modelo Básico
+
+```kotlin
+// ✅ GOOD - data class serializable que mapea tabla de Supabase
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+
+@Serializable
+data class Empleado(
+    val id: String? = null,                    // uuid generado por PostgreSQL
+    val identificacion: String,
+    val nombre: String,
+    val apellidos: String,
+    val email: String,
+    val cargo: String,
+    @SerialName("sueldo_devengado")           // mapea nombre de columna en DB
+    val sueldoDevengado: Double,
+    @SerialName("created_at")
+    val createdAt: String? = null,            // timestamptz como String ISO
+    @SerialName("updated_at")
+    val updatedAt: String? = null
+)
+
+// ❌ BAD - modelo sin @Serializable o sin mapeo de columnas
+data class Empleado(
+    val id: String,
+    val sueldoDevengado: Double  // ❌ No mapea 'sueldo_devengado' en DB
+)
+```
+
+## Mapeo de Columnas Snake_Case
+
+```kotlin
+// ✅ GOOD - usar @SerialName para snake_case
+@Serializable
+data class Usuario(
+    val id: String? = null,
+    @SerialName("nombre_completo")
+    val nombreCompleto: String,
+    @SerialName("fecha_nacimiento")
+    val fechaNacimiento: String,
+    @SerialName("tipo_documento")
+    val tipoDocumento: String
+)
+
+// ❌ BAD - nombres en camelCase sin @SerialName (no coincide con DB)
+@Serializable
+data class Usuario(
+    val nombreCompleto: String,  // DB tiene 'nombre_completo'
+    val fechaNacimiento: String  // No se podrá serializar/deserializar
+)
+```
+
+## IDs Opcionales (Generados por DB)
+
+```kotlin
+// ✅ GOOD - id opcional con default null
+@Serializable
+data class Empleado(
+    val id: String? = null,  // uuid generado por gen_random_uuid()
+    val nombre: String
+)
+
+// Al insertar: no incluir id, PostgreSQL lo genera
+val nuevo = Empleado(nombre = "Juan")
+repository.insertar(nuevo)
+
+// ❌ BAD - id obligatorio
+@Serializable
+data class Empleado(
+    val id: String,  // ❌ Error al insertar sin id
+    val nombre: String
+)
+```
+
+## Timestamps
+
+```kotlin
+// ✅ GOOD - timestamps como String (ISO 8601)
+@Serializable
+data class Empleado(
+    val id: String? = null,
+    val nombre: String,
+    @SerialName("created_at")
+    val createdAt: String? = null,  // "2026-03-16T18:30:00Z"
+    @SerialName("updated_at")
+    val updatedAt: String? = null
+)
+
+// Conversión si necesitas LocalDateTime
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toLocalDateTime
+
+fun Empleado.fechaCreacion(): LocalDateTime? =
+    createdAt?.let { Instant.parse(it).toLocalDateTime(TimeZone.UTC) }
+
+// ❌ BAD - usar Long o tipos no serializables nativamente
+@Serializable
+data class Empleado(
+    val createdAt: Long,           // ❌ PostgreSQL retorna String ISO
+    val updatedAt: LocalDateTime   // ❌ No serializable sin custom serializer
+)
+```
+
+## Enums
+
+```kotlin
+// ✅ GOOD - enum que mapea tipo PostgreSQL
+@Serializable
+enum class TipoEmpleado {
+    @SerialName("planta")
+    PLANTA,
+    
+    @SerialName("contratista")
+    CONTRATISTA,
+    
+    @SerialName("temporal")
+    TEMPORAL
+}
+
+@Serializable
+data class Empleado(
+    val id: String? = null,
+    val nombre: String,
+    val tipo: TipoEmpleado
+)
+
+// ❌ BAD - enum sin @SerialName (usa toString() por defecto)
+enum class TipoEmpleado {
+    PLANTA,      // Se serializa como "PLANTA" pero DB espera "planta"
+    CONTRATISTA
+}
+```
+
+## Valores Default
+
+```kotlin
+// ✅ GOOD - defaults para campos opcionales
+@Serializable
+data class Configuracion(
+    val id: String? = null,
+    val tema: String = "claro",
+    val idioma: String = "es",
+    @SerialName("notificaciones_activas")
+    val notificacionesActivas: Boolean = true
+)
+
+// ❌ BAD - todos los campos obligatorios cuando algunos tienen defaults en DB
+@Serializable
+data class Configuracion(
+    val tema: String,  // ❌ Tiene default en DB pero es obligatorio aquí
+    val idioma: String
+)
+```
+
+## Nested Objects (Joins)
+
+```kotlin
+// ✅ GOOD - modelo con relación embebida
+@Serializable
+data class Departamento(
+    val id: String,
+    val nombre: String
+)
+
+@Serializable
+data class EmpleadoConDepartamento(
+    val id: String,
+    val nombre: String,
+    @SerialName("departamento_id")
+    val departamentoId: String,
+    val departamento: Departamento?  // Join desde Supabase
+)
+
+// Query que lo retorna:
+// .select(Columns.raw("*, departamento:departamento_id(*)"))
+```
+
+## Null Safety
+
+```kotlin
+// ✅ GOOD - nullable solo cuando realmente puede ser null en DB
+@Serializable
+data class Usuario(
+    val id: String? = null,        // null hasta que DB lo genera
+    val nombre: String,            // NOT NULL en DB
+    val apellido: String,          // NOT NULL en DB
+    val telefono: String? = null,  // nullable en DB
+    val avatar: String? = null     // nullable en DB
+)
+
+// ❌ BAD - todo nullable sin razón
+@Serializable
+data class Usuario(
+    val nombre: String?,  // ❌ NOT NULL en DB, debe ser obligatorio
+    val email: String?
+)
+```
+
+## Custom Serializers
+
+```kotlin
+// ✅ GOOD - serializer custom para tipos especiales
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+
+object BigDecimalSerializer : KSerializer<java.math.BigDecimal> {
+    override val descriptor: SerialDescriptor = 
+        PrimitiveSerialDescriptor("BigDecimal", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: java.math.BigDecimal) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): java.math.BigDecimal {
+        return java.math.BigDecimal(decoder.decodeString())
+    }
+}
+
+@Serializable
+data class Empleado(
+    val id: String? = null,
+    val nombre: String,
+    @Serializable(with = BigDecimalSerializer::class)
+    @SerialName("sueldo_devengado")
+    val sueldoDevengado: java.math.BigDecimal
+)
+```
+
+## Validación en el Modelo
+
+```kotlin
+// ✅ GOOD - validación básica con init o functions
+@Serializable
+data class Empleado(
+    val id: String? = null,
+    val nombre: String,
+    val email: String,
+    @SerialName("sueldo_devengado")
+    val sueldoDevengado: Double
+) {
+    init {
+        require(nombre.isNotBlank()) { "Nombre no puede estar vacío" }
+        require(email.contains("@")) { "Email inválido" }
+        require(sueldoDevengado > 0) { "Sueldo debe ser positivo" }
+    }
+}
+
+// ❌ BAD - validación compleja en el modelo (mover a ViewModel/Repository)
+init {
+    // ❌ No hacer llamadas a DB o red aquí
+    if (repository.existeEmail(email)) throw Exception()
+}
+```
+
+## Naming Conventions
+
+- **Data class:** PascalCase (`Empleado`, `Usuario`, `Departamento`)
+- **Propiedades:** camelCase (`nombreCompleto`, `sueldoDevengado`)
+- **@SerialName:** snake_case (coincide con DB: `"nombre_completo"`)
+- **Archivos:** PascalCase.kt en carpeta `model/`
+
+## Convenciones
+
+1. Siempre usar `@Serializable` en data classes que se envían/reciben de Supabase
+2. Usar `@SerialName` para mapear columnas snake_case de PostgreSQL
+3. IDs opcionales (`String? = null`) para generación automática
+4. Timestamps como `String` (ISO 8601), opcionales si se generan en DB
+5. Enums con `@SerialName` para valores en minúsculas
+6. Nullables solo cuando realmente son NULL en DB
+7. Validación básica en `init`, validación compleja en Repository/ViewModel
