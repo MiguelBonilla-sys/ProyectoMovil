@@ -1,9 +1,11 @@
 package com.example.proyecto.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.ui.screens.LoginAbogadoScreen
 import com.example.proyecto.ui.screens.LoginClienteScreen
 import com.example.proyecto.ui.screens.MainScreen
@@ -24,9 +26,14 @@ object Routes {
 fun AppNavGraph() {
     val navController = rememberNavController()
 
+    // Restaura sesión guardada en disco; si hay usuario → arranca directo en MAIN
+    val startDestination = remember {
+        if (SessionManager.restoreSession()) Routes.MAIN else Routes.WELCOME
+    }
+
     NavHost(
         navController = navController,
-        startDestination = Routes.WELCOME
+        startDestination = startDestination
     ) {
         composable(Routes.WELCOME) {
             WelcomeScreen(navController = navController)
