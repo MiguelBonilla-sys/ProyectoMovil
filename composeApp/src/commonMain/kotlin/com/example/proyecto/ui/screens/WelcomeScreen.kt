@@ -8,9 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -54,7 +52,7 @@ fun WelcomeScreen(navController: NavController) {
                 )
             }
 
-            // ── Textos ──
+            // ── Nombre de la App ──
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = "LexSign",
@@ -62,45 +60,87 @@ fun WelcomeScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Asesoría legal desde donde estés",
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.85f),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            // CRÉDITOS
-            Text(
-                text = "Hecho por Miguel Bonilla y Sebastian Fandiño",
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.White.copy(alpha = 0.55f),
+                text = "Asesoría Legal Digital",
+                style = MaterialTheme.typography.titleSmall,
+                color = Color.White.copy(alpha = 0.75f),
                 textAlign = TextAlign.Center
             )
 
-            // ── Botones principales ──
-            Spacer(modifier = Modifier.height(40.dp))
+            // ── Descripción del caso ──
+            Spacer(modifier = Modifier.height(20.dp))
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFF5C6BC0).copy(alpha = 0.35f),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "LexSign es una plataforma móvil que conecta clientes con abogados " +
+                            "certificados en Colombia. Permite gestionar consultas legales, " +
+                            "firmar documentos digitalmente y hacer seguimiento de casos " +
+                            "en tiempo real a través de Supabase.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.9f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(14.dp)
+                )
+            }
 
-            // Botón 1 — Soy Cliente (relleno blanco)
+            // ── Equipo de desarrollo ──
+            Spacer(modifier = Modifier.height(16.dp))
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = Color.White.copy(alpha = 0.1f),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Equipo de Desarrollo",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Miguel Bonilla  •  Sebastian Fandiño",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            // ── Botón principal al Menú de Navegación ──
+            Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = { navController.navigate("login_cliente") },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
+                modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color(0xFF1A237E)
                 )
             ) {
+                Icon(
+                    Icons.Filled.Gavel,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Soy Cliente",
-                    fontWeight = FontWeight.SemiBold,
+                    "Ingresar al Sistema",
+                    fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Botón 2 — Soy Abogado (outline blanco)
             OutlinedButton(
                 onClick = { navController.navigate("login_abogado") },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -117,83 +157,10 @@ fun WelcomeScreen(navController: NavController) {
                 )
             }
 
-            // ── Divisor "o continúa con" ──
-            Spacer(modifier = Modifier.height(28.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier.weight(1f),
-                    color = Color.White.copy(alpha = 0.3f)
-                )
-                Text(
-                    "  o continúa con  ",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.6f)
-                )
-                HorizontalDivider(
-                    modifier = Modifier.weight(1f),
-                    color = Color.White.copy(alpha = 0.3f)
-                )
-            }
-
-            // ── Botones sociales (stub) ──
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Google
-            OutlinedButton(
-                onClick = { /* TODO: implementar KMPAuth — Google Sign-In */ },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(50),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.6f)),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.White
-                )
-            ) {
-                Icon(
-                    Icons.Filled.Language,
-                    contentDescription = "Google",
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Continuar con Google",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Email
-            OutlinedButton(
-                onClick = { /* TODO: implementar Email Sign-In */ },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(50),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.6f)),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.White
-                )
-            ) {
-                Icon(
-                    Icons.Filled.Email,
-                    contentDescription = "Email",
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Continuar con Email",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            // ── Footer legal ──
-            Spacer(modifier = Modifier.height(32.dp))
+            // ── Footer ──
+            Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Al continuar, aceptas nuestros Términos de Servicio\n" +
-                        "y Política de Privacidad",
+                text = "Al continuar aceptas nuestros Términos de Servicio\ny Política de Privacidad",
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White.copy(alpha = 0.5f),
                 textAlign = TextAlign.Center

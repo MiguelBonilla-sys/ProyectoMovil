@@ -6,6 +6,7 @@ import com.example.proyecto.data.model.Consulta
 import com.example.proyecto.data.model.ConsultaAbogado
 import com.example.proyecto.data.model.EstadoConsulta
 import com.example.proyecto.data.repository.ConsultaRepository
+import com.example.proyecto.data.repository.ConsultaRepository.Companion.PAGE_SIZE
 import com.example.proyecto.data.session.SessionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,9 +17,12 @@ data class ConsultaUiState(
     val consultas: List<Consulta> = emptyList(),
     val consultasFiltradas: List<Consulta> = emptyList(),
     val isLoading: Boolean = false,
+    val isLoadingMore: Boolean = false,
     val error: String? = null,
     val estadoFiltro: String = "Todas",
-    val areaFiltro: String = "Todas"
+    val areaFiltro: String = "Todas",
+    val currentPage: Int = 0,
+    val hasMore: Boolean = true
 )
 
 class ConsultaViewModel(
@@ -37,17 +41,43 @@ class ConsultaViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
                 val userId = SessionManager.currentUser?.id ?: return@launch
-                val lista = repository.obtenerPorCliente(userId)
+                val lista = repository.obtenerPorCliente(userId, limit = PAGE_SIZE, offset = 0)
                 _uiState.value = _uiState.value.copy(
                     consultas = lista,
                     consultasFiltradas = lista,
-                    isLoading = false
+                    isLoading = false,
+                    currentPage = 0,
+                    hasMore = lista.size >= PAGE_SIZE
                 )
+                aplicarFiltros()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Error al cargar consultas"
                 )
+            }
+        }
+    }
+
+    fun cargarMas() {
+        val state = _uiState.value
+        if (!state.hasMore || state.isLoading || state.isLoadingMore) return
+        val userId = SessionManager.currentUser?.id ?: return
+        viewModelScope.launch {
+            _uiState.value = state.copy(isLoadingMore = true)
+            try {
+                val nextPage = state.currentPage + 1
+                val lista = repository.obtenerPorCliente(userId, limit = PAGE_SIZE, offset = nextPage * PAGE_SIZE)
+                val todas = state.consultas + lista
+                _uiState.value = _uiState.value.copy(
+                    consultas = todas,
+                    isLoadingMore = false,
+                    currentPage = nextPage,
+                    hasMore = lista.size >= PAGE_SIZE
+                )
+                aplicarFiltros()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoadingMore = false, error = e.message)
             }
         }
     }
@@ -101,6 +131,17 @@ class ConsultaViewModel(
     fun filtrarPorEstado(estado: String) {
         _uiState.value = _uiState.value.copy(estadoFiltro = estado)
         aplicarFiltros()
+    }
+
+    fun eliminarConsulta(consultaId: String) {
+        viewModelScope.launch {
+            try {
+                repository.eliminarConsulta(consultaId)
+                cargarConsultas()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = e.message)
+            }
+        }
     }
 
     fun filtrarPorArea(area: String) {

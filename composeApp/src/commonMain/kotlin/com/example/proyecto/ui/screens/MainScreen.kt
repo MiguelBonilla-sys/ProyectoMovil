@@ -86,7 +86,9 @@ fun MainScreen(
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             when (selectedTab) {
                 0 -> HomeScreen(onNavigateToTab = { selectedTab = it })
-                1 -> LawyersScreen()
+                1 -> LawyersScreen(onSolicitarConsulta = { abogadoId, abogadoNombre ->
+                    navController.navigate("create_consultation?abogadoId=$abogadoId&abogadoNombre=$abogadoNombre")
+                })
                 2 -> DocumentsScreen()
                 3 -> ConsultationsScreen()
                 4 -> ProfileScreen(navController = navController)

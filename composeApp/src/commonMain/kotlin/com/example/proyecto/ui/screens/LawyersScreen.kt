@@ -27,7 +27,10 @@ import com.example.proyecto.ui.viewmodel.AbogadoViewModel
 private val ESPECIALIDADES = listOf("Todos", "Penal", "Civil", "Laboral", "Familia", "Comercial")
 
 @Composable
-fun LawyersScreen(viewModel: AbogadoViewModel = viewModel()) {
+fun LawyersScreen(
+    onSolicitarConsulta: (abogadoId: String, abogadoNombre: String) -> Unit = { _, _ -> },
+    viewModel: AbogadoViewModel = viewModel()
+) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedAbogado by remember { mutableStateOf<User?>(null) }
 
@@ -178,7 +181,10 @@ fun LawyersScreen(viewModel: AbogadoViewModel = viewModel()) {
             },
             confirmButton = {
                 Button(
-                    onClick = { selectedAbogado = null },
+                    onClick = {
+                        onSolicitarConsulta(abogado.id ?: "", abogado.nombre)
+                        selectedAbogado = null
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3949AB))
                 ) { Text("Solicitar consulta") }
             },

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -138,8 +139,33 @@ fun ConsultationsScreen(viewModel: ConsultaViewModel = viewModel()) {
                         }
                     }
                 }
-                else -> items(uiState.consultasFiltradas) { consulta ->
-                    ConsultaCard(consulta = consulta)
+                else -> {
+                    items(uiState.consultasFiltradas) { consulta ->
+                        ConsultaCard(
+                            consulta = consulta,
+                            onEliminar = { id -> viewModel.eliminarConsulta(id) }
+                        )
+                    }
+                    item {
+                        if (uiState.isLoadingMore) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = Color(0xFF3949AB),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        } else if (uiState.hasMore && uiState.consultasFiltradas.isNotEmpty()) {
+                            TextButton(
+                                onClick = { viewModel.cargarMas() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Cargar más", color = Color(0xFF3949AB))
+                            }
+                        }
+                    }
                 }
             }
 
@@ -163,12 +189,13 @@ fun ConsultationsScreen(viewModel: ConsultaViewModel = viewModel()) {
 }
 
 @Composable
-private fun ConsultaCard(consulta: Consulta) {
+private fun ConsultaCard(consulta: Consulta, onEliminar: ((String) -> Unit)? = null) {
     val (statusColor, statusText) = when (consulta.estado) {
         EstadoConsulta.ABIERTA  -> Color(0xFFFFA726) to "Abierta"
         EstadoConsulta.EN_CURSO -> Color(0xFF00BFA5) to "En Curso"
         EstadoConsulta.CERRADA  -> Color(0xFF757575) to "Cerrada"
     }
+    var confirmarEliminar by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -211,14 +238,53 @@ private fun ConsultaCard(consulta: Consulta) {
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            consulta.createdAt?.let { fecha ->
-                Text(
-                    text = fecha.take(10),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.4f)
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                consulta.createdAt?.let { fecha ->
+                    Text(
+                        text = fecha.take(10),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.4f)
+                    )
+                }
+                if (consulta.estado == EstadoConsulta.ABIERTA && onEliminar != null) {
+                    IconButton(
+                        onClick = { confirmarEliminar = true },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.Delete,
+                            contentDescription = "Eliminar consulta",
+                            tint = Color(0xFFCF6679),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
             }
         }
+    }
+
+    if (confirmarEliminar) {
+        AlertDialog(
+            onDismissRequest = { confirmarEliminar = false },
+            containerColor = Color(0xFF1E1E2E),
+            title = { Text("Eliminar consulta", color = Color.White, fontWeight = FontWeight.Bold) },
+            text = { Text("¿Seguro que deseas eliminar esta consulta? Esta acción no se puede deshacer.", color = Color.White.copy(alpha = 0.8f)) },
+            confirmButton = {
+                Button(
+                    onClick = { consulta.id?.let { onEliminar?.invoke(it) }; confirmarEliminar = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCF6679))
+                ) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmarEliminar = false }) {
+                    Text("Cancelar", color = Color.White.copy(alpha = 0.7f))
+                }
+            }
+        )
     }
 }
 

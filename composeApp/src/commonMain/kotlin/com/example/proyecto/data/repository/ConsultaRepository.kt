@@ -8,25 +8,29 @@ import io.github.jan.supabase.postgrest.from
 
 class ConsultaRepository {
 
+    companion object {
+        const val PAGE_SIZE = 20
+    }
+
     suspend fun crearConsulta(consulta: Consulta): Consulta =
         supabase.from("consultas")
             .insert(consulta) { select() }
             .decodeSingle<Consulta>()
 
-    suspend fun obtenerPorCliente(clienteId: String): List<Consulta> =
+    suspend fun obtenerPorCliente(clienteId: String, limit: Int = PAGE_SIZE, offset: Int = 0): List<Consulta> =
         supabase.from("consultas")
             .select {
                 filter { eq("cliente_id", clienteId) }
                 order("created_at", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
+                range(offset.toLong(), (offset + limit - 1).toLong())
             }
             .decodeList<Consulta>()
 
-    suspend fun obtenerPorAbogado(abogadoId: String): List<Consulta> =
+    suspend fun obtenerPorAbogado(abogadoId: String, limit: Int = PAGE_SIZE, offset: Int = 0): List<Consulta> =
         supabase.from("consultas")
             .select {
-                filter {
-                    eq("consulta_abogados.abogado_id", abogadoId)
-                }
+                filter { eq("consulta_abogados.abogado_id", abogadoId) }
+                range(offset.toLong(), (offset + limit - 1).toLong())
             }
             .decodeList<Consulta>()
 
@@ -37,10 +41,11 @@ class ConsultaRepository {
             }
             .decodeSingleOrNull<Consulta>()
 
-    suspend fun obtenerTodas(): List<Consulta> =
+    suspend fun obtenerTodas(limit: Int = PAGE_SIZE, offset: Int = 0): List<Consulta> =
         supabase.from("consultas")
             .select {
                 order("created_at", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
+                range(offset.toLong(), (offset + limit - 1).toLong())
             }
             .decodeList<Consulta>()
 
@@ -79,4 +84,9 @@ class ConsultaRepository {
                 order("created_at", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
             }
             .decodeList<Consulta>()
+
+    suspend fun eliminarConsulta(consultaId: String) {
+        supabase.from("consulta_abogados").delete { filter { eq("consulta_id", consultaId) } }
+        supabase.from("consultas").delete { filter { eq("id", consultaId) } }
+    }
 }
