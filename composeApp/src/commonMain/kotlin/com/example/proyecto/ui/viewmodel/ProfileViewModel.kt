@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyecto.data.model.User
 import com.example.proyecto.data.remote.supabase
+import com.example.proyecto.data.repository.AuthRepository
 import com.example.proyecto.data.session.SessionManager
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,9 @@ data class ProfileUiState(
     val successMessage: String? = null
 )
 
-class ProfileViewModel : ViewModel() {
+class ProfileViewModel(
+    private val authRepository: AuthRepository = AuthRepository()
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -44,7 +47,7 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSaving = true, error = null, successMessage = null)
             try {
-                val actualizado = supabase.from("users")
+                supabase.from("users")
                     .update({
                         set("nombre", nombre)
                         telefono?.let { set("telefono", it) }
@@ -53,10 +56,16 @@ class ProfileViewModel : ViewModel() {
                         experiencia?.let { set("experiencia", it) }
                     }) {
                         filter { eq("id", userId) }
-                        select()
                     }
-                    .decodeSingle<User>()
 
+                val current = SessionManager.currentUser!!
+                val actualizado = current.copy(
+                    nombre = nombre,
+                    telefono = telefono ?: current.telefono,
+                    descripcion = descripcion ?: current.descripcion,
+                    especialidad = especialidad ?: current.especialidad,
+                    experiencia = experiencia ?: current.experiencia
+                )
                 SessionManager.login(actualizado)
                 _uiState.value = ProfileUiState(
                     usuario = actualizado,
@@ -67,6 +76,23 @@ class ProfileViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     error = e.message ?: "Error al actualizar perfil"
+                )
+            }
+        }
+    }
+
+    fun eliminarCuenta(onSuccess: () -> Unit) {
+        val userId = SessionManager.currentUser?.id ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSaving = true, error = null)
+            try {
+                authRepository.eliminarUsuario(userId)
+                SessionManager.logout()
+                onSuccess()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    error = e.message ?: "Error al eliminar la cuenta"
                 )
             }
         }

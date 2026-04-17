@@ -37,6 +37,7 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val user = uiState.usuario ?: SessionManager.currentUser
     var mostrarEdicion by remember { mutableStateOf(false) }
+    var confirmarEliminarCuenta by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.successMessage) {
         if (uiState.successMessage != null) {
@@ -150,13 +151,13 @@ fun ProfileScreen(
                 ProfileMenuItem(
                     icon = Icons.Filled.Lock,
                     label = "Seguridad",
-                    onClick = {}
+                    onClick = { navController.navigate(Routes.SECURITY) }
                 )
                 HorizontalDivider(color = Color(0xFF2A2A3C))
                 ProfileMenuItem(
                     icon = Icons.Filled.Notifications,
                     label = "Notificaciones",
-                    onClick = {}
+                    onClick = { navController.navigate(Routes.NOTIFICATIONS) }
                 )
             }
         }
@@ -174,13 +175,13 @@ fun ProfileScreen(
                 ProfileMenuItem(
                     icon = Icons.AutoMirrored.Filled.Help,
                     label = "Centro de Ayuda",
-                    onClick = {}
+                    onClick = { navController.navigate(Routes.HELP_CENTER) }
                 )
                 HorizontalDivider(color = Color(0xFF2A2A3C))
                 ProfileMenuItem(
                     icon = Icons.Filled.Description,
                     label = "Términos y Condiciones",
-                    onClick = {}
+                    onClick = { navController.navigate(Routes.TERMS) }
                 )
             }
         }
@@ -204,6 +205,19 @@ fun ProfileScreen(
             Text("Cerrar Sesión", fontWeight = FontWeight.SemiBold)
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextButton(
+            onClick = { confirmarEliminarCuenta = true },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                "Eliminar mi cuenta",
+                color = Color(0xFFCF6679).copy(alpha = 0.7f),
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
@@ -214,6 +228,31 @@ fun ProfileScreen(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+
+    if (confirmarEliminarCuenta) {
+        AlertDialog(
+            onDismissRequest = { confirmarEliminarCuenta = false },
+            containerColor = Color(0xFF1E1E2E),
+            title = { Text("Eliminar cuenta", color = Color.White, fontWeight = FontWeight.Bold) },
+            text = { Text("¿Estás seguro? Se eliminarán todos tus datos de forma permanente.", color = Color.White.copy(alpha = 0.8f)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        confirmarEliminarCuenta = false
+                        viewModel.eliminarCuenta {
+                            navController.navigate(Routes.WELCOME) { popUpTo(0) { inclusive = true } }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCF6679))
+                ) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmarEliminarCuenta = false }) {
+                    Text("Cancelar", color = Color.White.copy(alpha = 0.7f))
+                }
+            }
+        )
     }
 
     if (mostrarEdicion) {

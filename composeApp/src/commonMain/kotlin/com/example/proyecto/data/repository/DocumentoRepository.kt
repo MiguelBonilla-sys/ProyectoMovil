@@ -12,6 +12,7 @@ class DocumentoRepository {
     companion object {
         const val BUCKET_DOCUMENTOS = "documentos"
         const val BUCKET_PLANTILLAS = "plantillas"
+        const val PAGE_SIZE = 20
     }
 
     suspend fun subirDocumento(
@@ -45,11 +46,32 @@ class DocumentoRepository {
             .decodeSingle<Documento>()
     }
 
-    suspend fun obtenerPlantillas(): List<Documento> =
+    suspend fun crearDesdeMetadata(
+        nombre: String,
+        tipo: String,
+        subidoPor: String,
+        consultaId: String? = null,
+        url: String = ""
+    ): Documento {
+        val documento = Documento(
+            consultaId = consultaId,
+            nombre = nombre,
+            url = url,
+            tipo = tipo,
+            esPlantilla = false,
+            subidoPor = subidoPor
+        )
+        return supabase.from("documentos")
+            .insert(documento) { select() }
+            .decodeSingle<Documento>()
+    }
+
+    suspend fun obtenerPlantillas(limit: Int = PAGE_SIZE, offset: Int = 0): List<Documento> =
         supabase.from("documentos")
             .select {
                 filter { eq("es_plantilla", true) }
                 order("created_at", Order.DESCENDING)
+                range(offset.toLong(), (offset + limit - 1).toLong())
             }
             .decodeList<Documento>()
 
@@ -61,11 +83,12 @@ class DocumentoRepository {
             }
             .decodeList<Documento>()
 
-    suspend fun obtenerPorUsuario(userId: String): List<Documento> =
+    suspend fun obtenerPorUsuario(userId: String, limit: Int = PAGE_SIZE, offset: Int = 0): List<Documento> =
         supabase.from("documentos")
             .select {
                 filter { eq("subido_por", userId) }
                 order("created_at", Order.DESCENDING)
+                range(offset.toLong(), (offset + limit - 1).toLong())
             }
             .decodeList<Documento>()
 

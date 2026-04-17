@@ -61,7 +61,7 @@ class AuthRepository {
 
     suspend fun autenticarCliente(email: String, password: String): User? {
         val usuario = obtenerPorEmail(email) ?: return null
-        if (usuario.tipo != "cliente") return null
+        if (usuario.tipo != "cliente" && usuario.tipo != "administrador") return null
         return if (SecurityUtils.verifyPassword(password, usuario.password)) usuario else null
     }
 
@@ -70,6 +70,21 @@ class AuthRepository {
         if (usuario.tipo != "abogado") return null
         if (usuario.tarjeta != tarjeta) return null
         return if (SecurityUtils.verifyPassword(password, usuario.password)) usuario else null
+    }
+
+    suspend fun actualizarPassword(userId: String, passwordActual: String, passwordNuevo: String) {
+        val user = supabase.from("users")
+            .select { filter { eq("id", userId) } }
+            .decodeSingleOrNull<User>() ?: throw Exception("Usuario no encontrado")
+        if (!SecurityUtils.verifyPassword(passwordActual, user.password))
+            throw Exception("La contraseña actual es incorrecta")
+        val nuevoHash = SecurityUtils.hashPassword(passwordNuevo)
+        supabase.from("users")
+            .update({ set("password", nuevoHash) }) { filter { eq("id", userId) } }
+    }
+
+    suspend fun eliminarUsuario(userId: String) {
+        supabase.from("users").delete { filter { eq("id", userId) } }
     }
 
     private suspend fun obtenerPorEmail(email: String): User? =
