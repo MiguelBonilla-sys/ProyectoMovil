@@ -1,0 +1,266 @@
+Reusing configuration cache.
+> Task :composeApp:generateAndroidDebugNonAndroidBuildConfig SKIPPED
+> Task :composeApp:generateExpectResourceCollectorsForCommonMain UP-TO-DATE
+> Task :composeApp:generateComposeResClass UP-TO-DATE
+> Task :composeApp:preBuild UP-TO-DATE
+> Task :composeApp:preDebugBuild UP-TO-DATE
+> Task :composeApp:kmpPartiallyResolvedDependenciesChecker
+> Task :composeApp:generateAndroidMainNonAndroidBuildConfig SKIPPED
+> Task :composeApp:copyNonXmlValueResourcesForAndroidDebug NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :composeApp:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :composeApp:convertXmlValueResourcesForCommonMain NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForAndroidDebug NO-SOURCE
+> Task :composeApp:generateDebugResValues UP-TO-DATE
+> Task :composeApp:copyNonXmlValueResourcesForCommonMain UP-TO-DATE
+> Task :composeApp:checkDebugAarMetadata UP-TO-DATE
+> Task :composeApp:convertXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForCommonMain UP-TO-DATE
+> Task :composeApp:generateDebugResources UP-TO-DATE
+> Task :composeApp:prepareComposeResourcesTaskForAndroidDebug NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForAndroidMain NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForCommonMain UP-TO-DATE
+> Task :composeApp:generateResourceAccessorsForAndroidDebug NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForAndroidMain NO-SOURCE
+> Task :composeApp:generateNonAndroidBuildConfig UP-TO-DATE
+> Task :composeApp:mapDebugSourceSetPaths UP-TO-DATE
+> Task :composeApp:copyDebugComposeResourcesToAndroidAssets UP-TO-DATE
+> Task :composeApp:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :composeApp:mergeDebugResources UP-TO-DATE
+> Task :composeApp:generateActualResourceCollectorsForAndroidMain UP-TO-DATE
+> Task :composeApp:extractDeepLinksDebug UP-TO-DATE
+> Task :composeApp:packageDebugResources UP-TO-DATE
+> Task :composeApp:processDebugNavigationResources UP-TO-DATE
+> Task :composeApp:compileDebugNavigationResources UP-TO-DATE
+> Task :composeApp:parseDebugLocalResources UP-TO-DATE
+> Task :composeApp:processDebugMainManifest UP-TO-DATE
+> Task :composeApp:processDebugManifest UP-TO-DATE
+> Task :composeApp:processDebugManifestForPackage UP-TO-DATE
+> Task :composeApp:processDebugResources UP-TO-DATE
+
+> Task :composeApp:compileDebugKotlinAndroid
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/data/repository/AuthRepository.kt:129:40 Argument type mismatch: actual type is 'String?', but 'Any' was expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:36:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:355:17 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:355:32 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:356:21 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:356:29 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:356:31 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:356:38 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:21 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:35 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:37 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:37 Functions which invoke @Composable functions must be marked with the @Composable annotation
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:37 Function declaration must have a name.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:39 Cannot infer type for type parameter 'VM'. Specify it explicitly.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:39 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:39 Function invocation 'viewModel(...)' expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:49 Unresolved reference 'filtrarPorTabla'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:65 Unresolved reference 'it'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:357:70 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:21 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:36 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:38 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:38 Functions which invoke @Composable functions must be marked with the @Composable annotation
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:38 Function declaration must have a name.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:40 Cannot infer type for type parameter 'VM'. Specify it explicitly.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:40 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:40 Function invocation 'viewModel(...)' expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:50 Unresolved reference 'filtrarPorAccion'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:67 Unresolved reference 'it'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:358:72 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:21 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:38 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:40 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:40 Functions which invoke @Composable functions must be marked with the @Composable annotation
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:40 Function declaration must have a name.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:42 Cannot infer type for type parameter 'VM'. Specify it explicitly.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:42 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:42 Function invocation 'viewModel(...)' expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:52 Unresolved reference 'limpiarFiltros'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:359:70 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:360:21 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:360:30 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:360:32 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:361:25 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:361:26 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:361:38 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:361:39 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:362:25 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:362:26 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:362:36 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:362:37 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:362:42 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:362:43 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:362:53 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:362:54 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:363:25 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:363:26 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:363:33 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:363:34 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:363:36 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:363:37 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:363:39 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:364:17 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:17 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:24 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:25 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:31 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:33 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:38 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:39 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:49 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:365:50 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:366:13 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:13 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:16 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:17 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:24 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:25 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:31 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:34 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:38 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:40 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:40 Functions which invoke @Composable functions must be marked with the @Composable annotation
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:369:40 Function declaration must have a name.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:370:17 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:370:17 Cannot access 'fun ErrorCard(mensaje: String, onCerrar: () -> Unit, modifier: Modifier = ...): Unit': it is private in file.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:371:31 Unresolved reference 'uiState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:372:34 Cannot infer type for type parameter 'VM'. Specify it explicitly.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:372:34 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:372:34 Function invocation 'viewModel(...)' expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:372:44 Unresolved reference 'clearMessages'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:13 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:16 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:17 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:24 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:25 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:40 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:43 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:47 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:49 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:49 Functions which invoke @Composable functions must be marked with the @Composable annotation
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:379:49 Function declaration must have a name.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:380:17 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:381:31 Unresolved reference 'uiState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:382:34 Cannot infer type for type parameter 'VM'. Specify it explicitly.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:382:34 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:382:34 Function invocation 'viewModel(...)' expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:382:44 Unresolved reference 'clearMessages'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:390:13 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:390:18 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:390:18 Function declaration must have a name.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:391:17 Unresolved reference 'uiState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:391:35 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:392:21 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:393:45 Unresolved reference 'align'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:398:17 Unresolved reference 'uiState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:398:40 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:399:21 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:412:17 Syntax error: Expecting an element.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:412:22 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:413:21 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:415:30 Expression 'weight' of type 'Modifier.Companion' cannot be invoked as a function. Function 'invoke()' is not found.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:420:31 Unresolved reference 'uiState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:422:39 Argument type mismatch: actual type is 'Int', but 'AuditLog' was expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:423:45 Unresolved reference 'mostrarDetalles'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:430:21 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:431:39 Unresolved reference 'uiState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:432:38 Unresolved reference 'uiState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:433:44 Cannot infer type for type parameter 'VM'. Specify it explicitly.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:433:44 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:433:44 Function invocation 'viewModel(...)' expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:433:54 Unresolved reference 'paginaAnterior'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:434:40 Cannot infer type for type parameter 'VM'. Specify it explicitly.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:434:40 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:434:40 Function invocation 'viewModel(...)' expected.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:434:50 Unresolved reference 'paginaSiguiente'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:442:9 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:443:5 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:5 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:8 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:9 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:25 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:28 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:32 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:34 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:34 Functions which invoke @Composable functions must be marked with the @Composable annotation
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:446:34 Function declaration must have a name.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:447:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:448:19 Unresolved reference 'mostrarDetalles'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:449:26 Unresolved reference 'mostrarDetalles'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:452:1 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:456:14 Unresolved reference 'AuditLogUiState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:482:40 Unresolved reference 'tablaSeleccionada'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:495:40 Unresolved reference 'accionSeleccionada'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:522:14 Unresolved reference 'horizontalScroll'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:522:31 Unresolved reference 'rememberScrollState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:556:14 Unresolved reference 'horizontalScroll'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:556:31 Unresolved reference 'rememberScrollState'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:589:29 Unresolved reference 'clickable'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'modifier'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'enabled'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'labelTextStyle'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'labelColor'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'leadingIcon'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'trailingIcon'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'shape'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'elevation'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'border'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'minHeight'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'paddingValues'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:21 No value passed for parameter 'interactionSource'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:643:30 Unresolved reference 'ChipDefaults'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:652:38 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:653:29 Syntax error: Expecting an element.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:653:34 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:655:21 Syntax error: Expecting an element.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:656:17 Syntax error: Expecting an element.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/AuditLogScreen.kt:684:1 Syntax error: Expecting a top level declaration.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/DocumentoDetalleScreen.kt:57:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:49:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:87:21 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:97:21 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:107:21 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:133:5 Unresolved reference 'item'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:134:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:242:5 Unresolved reference 'item'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:243:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:352:5 Unresolved reference 'item'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/ForgotPasswordScreen.kt:353:9 @Composable invocations can only happen from the context of a @Composable function
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:40:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:87:17 Cannot access 'fun ErrorCard(mensaje: String, onCerrar: () -> Unit, modifier: Modifier = ...): Unit': it is private in file.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:139:58 Overload resolution ambiguity between candidates:
+fun eliminarNotificacion(notificacionId: String): Unit
+fun eliminarNotificacion(notificacionId: String): Unit
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:182:29 Incompatible types 'TipoNotificacion' and 'String'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:183:29 Incompatible types 'TipoNotificacion' and 'String'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:184:29 Incompatible types 'TipoNotificacion' and 'String'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:189:29 Incompatible types 'TipoNotificacion' and 'String'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:190:29 Incompatible types 'TipoNotificacion' and 'String'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/screens/NotificacionesScreen.kt:191:29 Incompatible types 'TipoNotificacion' and 'String'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/viewmodel/NotificacionViewModel.kt:130:5 Conflicting overloads:
+fun eliminarNotificacion(notificacionId: String): Unit
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/viewmodel/NotificacionViewModel.kt:141:28 Unresolved reference 'eliminarNotificacion'.
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/viewmodel/NotificacionViewModel.kt:292:5 Conflicting overloads:
+fun eliminarNotificacion(notificacionId: String): Unit
+e: file:///G:/migue/Documents/DEVs/ProyectoMovil/composeApp/src/commonMain/kotlin/com/example/proyecto/ui/viewmodel/NotificacionViewModel.kt:295:28 Unresolved reference 'eliminarNotificacion'.
+
+> Task :composeApp:compileDebugKotlinAndroid FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':composeApp:compileDebugKotlinAndroid'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to generate a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 7s
+25 actionable tasks: 2 executed, 23 up-to-date
+Configuration cache entry reused.

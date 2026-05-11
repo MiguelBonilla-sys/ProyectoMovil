@@ -92,6 +92,15 @@ class DocumentoRepository {
             }
             .decodeList<Documento>()
 
+    suspend fun obtenerPorId(documentoId: String): Documento? =
+        try {
+            supabase.from("documentos")
+                .select { filter { eq("id", documentoId) } }
+                .decodeSingleOrNull<Documento>()
+        } catch (e: Exception) {
+            null
+        }
+
     suspend fun actualizarEstadoFirma(documentoId: String, nuevoEstado: EstadoFirma): Documento =
         supabase.from("documentos")
             .update({ set("estado_firma", nuevoEstado.name.lowercase()) }) {
@@ -113,6 +122,19 @@ class DocumentoRepository {
         supabase.from("documentos").delete {
             filter { eq("id", documentoId) }
         }
+    }
+
+    /**
+     * Actualiza el documento para vincular un proceso de firma.
+     * Fase 0: Firma Electrónica.
+     */
+    suspend fun actualizarProcesoFirma(documentoId: String, procesoFirmaId: String): Documento {
+        return supabase.from("documentos")
+            .update({ set("proceso_firma_id", procesoFirmaId) }) {
+                filter { eq("id", documentoId) }
+                select()
+            }
+            .decodeSingle<Documento>()
     }
 
     private fun extraerPathDeUrl(url: String): String {

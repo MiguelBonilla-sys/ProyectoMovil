@@ -19,6 +19,11 @@ data class DocumentoUiState(
     val isLoadingMore: Boolean = false,
     val error: String? = null,
     val filtroEstado: String = "Todos",
+    val filtroTipo: String = "Todos",
+    val busquedaTexto: String = "",
+    val filtroFechaInicio: String? = null,
+    val filtroFechaFin: String? = null,
+    val ordenamiento: String = "fecha_desc",
     val currentPage: Int = 0,
     val hasMore: Boolean = true
 )
@@ -56,6 +61,79 @@ class DocumentoViewModel(
             }
         }
     }
+
+    fun buscarPorTexto(texto: String) {
+        _uiState.value = _uiState.value.copy(busquedaTexto = texto)
+        aplicarFiltros()
+    }
+
+    fun filtrarPorTipo(tipo: String) {
+        _uiState.value = _uiState.value.copy(filtroTipo = tipo)
+        aplicarFiltros()
+    }
+
+    fun filtrarPorRangoFechas(fechaInicio: String?, fechaFin: String?) {
+        _uiState.value = _uiState.value.copy(
+            filtroFechaInicio = fechaInicio,
+            filtroFechaFin = fechaFin
+        )
+        aplicarFiltros()
+    }
+
+    fun ordenarPor(campo: String) {
+        _uiState.value = _uiState.value.copy(ordenamiento = campo)
+        aplicarFiltros()
+    }
+
+    fun limpiarFiltros() {
+        _uiState.value = _uiState.value.copy(
+            filtroEstado = "Todos",
+            filtroTipo = "Todos",
+            busquedaTexto = "",
+            filtroFechaInicio = null,
+            filtroFechaFin = null,
+            ordenamiento = "fecha_desc"
+        )
+        cargarDocumentos()
+    }
+
+    private fun aplicarFiltros() {
+        val state = _uiState.value
+        var resultado = state.documentos
+
+        if (state.busquedaTexto.isNotBlank()) {
+            val texto = state.busquedaTexto.lowercase()
+            resultado = resultado.filter {
+                it.nombre.lowercase().contains(texto)
+            }
+        }
+
+        when (state.filtroEstado) {
+            "Pendientes" -> resultado = resultado.filter { it.estadoFirma == EstadoFirma.PENDIENTE }
+            "Firmados"   -> resultado = resultado.filter { it.estadoFirma == EstadoFirma.FIRMADO }
+            "Rechazados" -> resultado = resultado.filter { it.estadoFirma == EstadoFirma.RECHAZADO }
+        }
+
+        if (state.filtroTipo != "Todos") {
+            resultado = resultado.filter { it.tipo == state.filtroTipo }
+        }
+
+        resultado = when (state.ordenamiento) {
+            "nombre_asc" -> resultado.sortedBy { it.nombre }
+            "nombre_desc" -> resultado.sortedByDescending { it.nombre }
+            "fecha_asc" -> resultado.sortedBy { it.createdAt }
+            else -> resultado.sortedByDescending { it.createdAt }
+        }
+
+        _uiState.value = state.copy(documentos = resultado)
+    }
+
+    fun filtrarPorEstado(filtro: String) {
+        _uiState.value = _uiState.value.copy(filtroEstado = filtro)
+        aplicarFiltros()
+    }
+
+    fun documentosFiltrados(): List<Documento> = _uiState.value.documentos
 
     fun cargarMas() {
         val state = _uiState.value
@@ -118,7 +196,7 @@ class DocumentoViewModel(
         }
     }
 
-    fun usarPlantilla(plantilla: com.example.proyecto.data.model.Documento, onResult: (Boolean, String?) -> Unit) {
+    fun usarPlantilla(plantilla: Documento, onResult: (Boolean, String?) -> Unit) {
         val userId = SessionManager.currentUser?.id ?: run { onResult(false, "Sesión no iniciada"); return }
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
@@ -135,20 +213,6 @@ class DocumentoViewModel(
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
                 onResult(false, e.message)
             }
-        }
-    }
-
-    fun filtrarPorEstado(filtro: String) {
-        _uiState.value = _uiState.value.copy(filtroEstado = filtro)
-    }
-
-    fun documentosFiltrados(): List<Documento> {
-        val docs = _uiState.value.documentos
-        return when (_uiState.value.filtroEstado) {
-            "Pendientes" -> docs.filter { it.estadoFirma == EstadoFirma.PENDIENTE }
-            "Firmados"   -> docs.filter { it.estadoFirma == EstadoFirma.FIRMADO }
-            "Rechazados" -> docs.filter { it.estadoFirma == EstadoFirma.RECHAZADO }
-            else         -> docs
         }
     }
 }

@@ -42,6 +42,25 @@ data class Documento(
     @SerialName("sello_tiempo")
     val selloTiempo: String? = null,
 
+    // Campos de firma electrónica (FASE 0)
+    @SerialName("proceso_firma_id")
+    val procesoFirmaId: String? = null, // FK a procesos_firma.id
+
+    @SerialName("sello_tiempo_verificado")
+    val selloTiempoVerificado: String? = null, // Timestamp verificado de CAMERFIRMA
+
+    @SerialName("tipo_firma")
+    val tipoFirma: TipoFirma? = null, // SIMPLE o AVANZADA
+
+    @SerialName("cadena_firmas")
+    val cadenaFirmas: List<FirmaRegistro> = emptyList(), // Historial de firmas
+
+    @SerialName("url_documento_firmado")
+    val urlDocumentoFirmado: String? = null, // URL en Storage del PDF firmado
+
+    @SerialName("codigo_verificacion")
+    val codigoVerificacion: String? = null, // Para terceros verifiquen firma
+
     @SerialName("created_at")
     val createdAt: String? = null
 )

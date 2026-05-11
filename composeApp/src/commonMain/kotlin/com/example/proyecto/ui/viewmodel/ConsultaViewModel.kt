@@ -21,6 +21,15 @@ data class ConsultaUiState(
     val error: String? = null,
     val estadoFiltro: String = "Todas",
     val areaFiltro: String = "Todas",
+    val abogadoFiltro: String? = null,
+    val busquedaTexto: String = "",
+    val filtroFechaInicio: String? = null,
+    val filtroFechaFin: String? = null,
+    val ordenamiento: String = "fecha_desc",
+    val areasDisponibles: List<String> = listOf(
+        "Derecho Civil", "Derecho Penal", "Derecho Laboral", "Derecho Familiar",
+        "Derecho Comercial", "Derecho Administrativo", "Derecho Internacional"
+    ),
     val currentPage: Int = 0,
     val hasMore: Boolean = true
 )
@@ -57,6 +66,76 @@ class ConsultaViewModel(
                 )
             }
         }
+    }
+
+    fun buscarPorTexto(texto: String) {
+        _uiState.value = _uiState.value.copy(busquedaTexto = texto)
+        aplicarFiltros()
+    }
+
+    fun filtrarPorRangoFechas(fechaInicio: String?, fechaFin: String?) {
+        _uiState.value = _uiState.value.copy(
+            filtroFechaInicio = fechaInicio,
+            filtroFechaFin = fechaFin
+        )
+        aplicarFiltros()
+    }
+
+    fun filtrarPorAbogado(abogadoId: String?) {
+        _uiState.value = _uiState.value.copy(abogadoFiltro = abogadoId)
+        aplicarFiltros()
+    }
+
+    fun ordenarPor(campo: String) {
+        _uiState.value = _uiState.value.copy(ordenamiento = campo)
+        aplicarFiltros()
+    }
+
+    fun limpiarFiltros() {
+        _uiState.value = _uiState.value.copy(
+            estadoFiltro = "Todas",
+            areaFiltro = "Todas",
+            abogadoFiltro = null,
+            busquedaTexto = "",
+            filtroFechaInicio = null,
+            filtroFechaFin = null,
+            ordenamiento = "fecha_desc"
+        )
+        cargarConsultas()
+    }
+
+    private fun aplicarFiltros() {
+        val estado = _uiState.value
+        var resultado = estado.consultas
+
+        if (estado.busquedaTexto.isNotBlank()) {
+            val texto = estado.busquedaTexto.lowercase()
+            resultado = resultado.filter {
+                it.descripcion.lowercase().contains(texto) ||
+                it.areaPractica.lowercase().contains(texto)
+            }
+        }
+
+        if (estado.estadoFiltro != "Todas") {
+            val filtroEstado = when (estado.estadoFiltro) {
+                "Activas" -> EstadoConsulta.EN_CURSO
+                "Abiertas" -> EstadoConsulta.ABIERTA
+                "Cerradas" -> EstadoConsulta.CERRADA
+                else -> null
+            }
+            if (filtroEstado != null) resultado = resultado.filter { it.estado == filtroEstado }
+        }
+
+        if (estado.areaFiltro != "Todas") {
+            resultado = resultado.filter { it.areaPractica.contains(estado.areaFiltro, ignoreCase = true) }
+        }
+
+        resultado = when (estado.ordenamiento) {
+            "fecha_asc" -> resultado.sortedBy { it.createdAt }
+            else -> resultado.sortedByDescending { it.createdAt }
+        }
+
+        _uiState.value = estado.copy(consultasFiltradas = resultado)
     }
 
     fun cargarMas() {
@@ -147,23 +226,5 @@ class ConsultaViewModel(
     fun filtrarPorArea(area: String) {
         _uiState.value = _uiState.value.copy(areaFiltro = area)
         aplicarFiltros()
-    }
-
-    private fun aplicarFiltros() {
-        val estado = _uiState.value
-        var resultado = estado.consultas
-        if (estado.estadoFiltro != "Todas") {
-            val filtroEstado = when (estado.estadoFiltro) {
-                "Activas" -> EstadoConsulta.EN_CURSO
-                "Abiertas" -> EstadoConsulta.ABIERTA
-                "Cerradas" -> EstadoConsulta.CERRADA
-                else -> null
-            }
-            if (filtroEstado != null) resultado = resultado.filter { it.estado == filtroEstado }
-        }
-        if (estado.areaFiltro != "Todas") {
-            resultado = resultado.filter { it.areaPractica.contains(estado.areaFiltro, ignoreCase = true) }
-        }
-        _uiState.value = estado.copy(consultasFiltradas = resultado)
     }
 }

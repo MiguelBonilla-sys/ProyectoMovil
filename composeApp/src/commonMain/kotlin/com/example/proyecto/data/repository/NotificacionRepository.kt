@@ -42,4 +42,11 @@ class NotificacionRepository {
             }
             .decodeList<Notificacion>()
             .size
+
+    suspend fun eliminarNotificacion(notificacionId: String) {
+        supabase.from("notificaciones")
+            .delete {
+                filter { eq("id", notificacionId) }
+            }
+    }
 }

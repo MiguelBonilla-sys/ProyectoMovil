@@ -87,6 +87,106 @@ class AuthRepository {
         supabase.from("users").delete { filter { eq("id", userId) } }
     }
 
+    /**
+     * Inicia el proceso de recuperación de contraseña.
+     * Crea un token de recuperación válido por 15 minutos.
+     * FASE 1: Recuperación de Contraseña
+     */
+    suspend fun solicitarRecuperacionContrasena(email: String) {
+        val usuario = obtenerPorEmail(email) ?: throw Exception("Email no registrado")
+        val usuarioId = usuario.id ?: throw Exception("Usuario sin ID")
+
+        // Generar token único (alphanumerico aleatorio)
+        val token = (1..32).map { (('a'..'z') + ('0'..'9')).random() }.joinToString("")
+        
+        // Token válido por 15 minutos
+        val expiresAt = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC)
+            .plusMinutes(15)
+            .format(java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+
+        // Crear registro en tabla password_reset_tokens
+        supabase.from("password_reset_tokens")
+            .insert(mapOf(
+                "user_id" to (usuarioId as Any),
+                "token" to (token as Any),
+                "expires_at" to (expiresAt as Any)
+            ))
+
+        // TODO: Enviar email con el token
+        // val email_body = "Tu código de recuperación: $token"
+        // sendgrid.send(to = usuario.email, subject = "Recuperar Contraseña", body = email_body)
+        // Por ahora, solo guardar en BD
+    }
+
+    /**
+     * Verifica que el token sea válido y no haya expirado.
+     */
+    suspend fun verificarTokenRecuperacion(email: String, token: String) {
+        val usuario = obtenerPorEmail(email) ?: throw Exception("Email no registrado")
+        val usuarioId = usuario.id ?: throw Exception("Usuario sin ID")
+
+        val tokenRecord = supabase.from("password_reset_tokens")
+            .select {
+                filter { eq("user_id", usuarioId as Any) }
+                filter { eq("token", token) }
+            }
+            .decodeSingleOrNull<Map<String, Any?>>()
+            ?: throw Exception("Token inválido")
+
+        // Verificar que no haya expirado
+        val expiresAt = tokenRecord["expires_at"] as? String
+            ?: throw Exception("Token no tiene fecha de vencimiento")
+
+        val expiresDateTime = java.time.LocalDateTime.parse(
+            expiresAt,
+            java.time.format.DateTimeFormatter.ISO_DATE_TIME
+        )
+        val ahora = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC)
+
+        if (ahora.isAfter(expiresDateTime)) {
+            throw Exception("Token expirado. Solicita uno nuevo.")
+        }
+
+        // Verificar que no haya sido usado ya
+        val usedAt = tokenRecord["used_at"]
+        if (usedAt != null) {
+            throw Exception("Token ya fue utilizado")
+        }
+    }
+
+    /**
+     * Restablece la contraseña del usuario con un token válido.
+     */
+    suspend fun restablecerContrasena(email: String, token: String, nuevaContrasena: String) {
+        // Primero verificar que el token sea válido
+        verificarTokenRecuperacion(email, token)
+
+        val usuario = obtenerPorEmail(email) ?: throw Exception("Email no registrado")
+
+        // Actualizar contraseña
+        val nuevoHash = SecurityUtils.hashPassword(nuevaContrasena)
+        val usuarioId = usuario.id ?: throw Exception("Usuario sin ID")
+        supabase.from("users")
+            .update({ set("password", nuevoHash as Any) }) {
+                filter { eq("id", usuarioId) }
+            }
+
+        // Marcar token como usado
+        val ahora = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC)
+            .format(java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+
+        supabase.from("password_reset_tokens")
+            .update({ set("used_at", ahora as Any) }) {
+                filter { eq("token", token) }
+                filter { eq("user_id", usuarioId) }
+            }
+    }
+
+    suspend fun obtenerPorId(userId: String): User? =
+        supabase.from("users")
+            .select { filter { eq("id", userId) } }
+            .decodeSingleOrNull<User>()
+
     private suspend fun obtenerPorEmail(email: String): User? =
         supabase.from("users")
             .select {
