@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.*
@@ -17,50 +16,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyecto.data.model.Documento
 import com.example.proyecto.data.model.EstadoFirma
+import com.example.proyecto.data.model.TipoPlantilla
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.ui.viewmodel.DocumentoViewModel
-import kotlinx.coroutines.launch
 
 private val FILTROS = listOf("Todos", "Pendientes", "Firmados", "Rechazados")
 
 private val PLANTILLAS_PREDEFINIDAS = listOf(
-    com.example.proyecto.data.model.Documento(
-        id = "plantilla-1", nombre = "Poder Notarial General",
-        url = "", tipo = "Poder Notarial", esPlantilla = true
-    ),
-    com.example.proyecto.data.model.Documento(
-        id = "plantilla-2", nombre = "Contrato de Arrendamiento",
-        url = "", tipo = "Contrato", esPlantilla = true
-    ),
-    com.example.proyecto.data.model.Documento(
-        id = "plantilla-3", nombre = "Carta de Autorización",
-        url = "", tipo = "Carta", esPlantilla = true
-    ),
-    com.example.proyecto.data.model.Documento(
-        id = "plantilla-4", nombre = "Acuerdo de Confidencialidad (NDA)",
-        url = "", tipo = "Acuerdo", esPlantilla = true
-    ),
-    com.example.proyecto.data.model.Documento(
-        id = "plantilla-5", nombre = "Demanda Civil - Estructura General",
-        url = "", tipo = "Demanda", esPlantilla = true
-    ),
+    TipoPlantilla.PODER_NOTARIAL to "Poder Notarial General",
+    TipoPlantilla.CONTRATO_ARRENDAMIENTO to "Contrato de Arrendamiento",
+    TipoPlantilla.CARTA_AUTORIZACION to "Carta de Autorización",
+    TipoPlantilla.NDA to "Acuerdo de Confidencialidad (NDA)",
+    TipoPlantilla.DEMANDA_CIVIL to "Demanda Civil"
 )
 
 @Composable
-fun DocumentsScreen(viewModel: DocumentoViewModel = viewModel()) {
+fun DocumentsScreen(
+    viewModel: DocumentoViewModel = viewModel(),
+    navController: androidx.navigation.NavController,
+    onNavigateSubirArchivo: () -> Unit,
+    onNavigateTemplateForm: (TipoPlantilla) -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
     var vistaPlantillas by remember { mutableStateOf(false) }
     var mostrarMenuCrear by remember { mutableStateOf(false) }
-    var mostrarDialogNuevo by remember { mutableStateOf(false) }
-    var mostrarDialogPlantilla by remember { mutableStateOf<Documento?>(null) }
-
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         containerColor = Color(0xFF0D0D1A),
@@ -177,17 +161,14 @@ fun DocumentsScreen(viewModel: DocumentoViewModel = viewModel()) {
                     }
                 }
                 vistaPlantillas -> {
-                    val plantillas = uiState.plantillas + PLANTILLAS_PREDEFINIDAS
-                    if (plantillas.isEmpty()) {
-                        item { EmptyState("No hay plantillas disponibles") }
-                    } else {
-                        items(plantillas) { doc ->
-                            DocumentoCard(
-                                documento = doc,
-                                esPlantilla = true,
-                                onUsarPlantilla = { mostrarDialogPlantilla = doc }
-                            )
-                        }
+                    items(PLANTILLAS_PREDEFINIDAS) { (tipo, nombre) ->
+                        PlantillaCard(
+                            tipo = tipo,
+                            nombre = nombre,
+                            onUsarPlantilla = {
+                                onNavigateTemplateForm(tipo)
+                            }
+                        )
                     }
                 }
                 else -> {
@@ -200,7 +181,8 @@ fun DocumentsScreen(viewModel: DocumentoViewModel = viewModel()) {
                                 documento = doc,
                                 onFirmar = { id -> viewModel.actualizarFirma(id, EstadoFirma.FIRMADO) { } },
                                 onRechazar = { id -> viewModel.actualizarFirma(id, EstadoFirma.RECHAZADO) { } },
-                                onEliminar = { id, url -> viewModel.eliminarDocumento(id, url) }
+                                onEliminar = { id, url -> viewModel.eliminarDocumento(id, url) },
+                                onDescargar = null
                             )
                         }
                         item {
@@ -231,7 +213,6 @@ fun DocumentsScreen(viewModel: DocumentoViewModel = viewModel()) {
         }
     }
 
-    // Menú de creación
     if (mostrarMenuCrear) {
         AlertDialog(
             onDismissRequest = { mostrarMenuCrear = false },
@@ -240,7 +221,10 @@ fun DocumentsScreen(viewModel: DocumentoViewModel = viewModel()) {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Card(
-                        onClick = { mostrarMenuCrear = false; mostrarDialogNuevo = true },
+                        onClick = {
+                            mostrarMenuCrear = false
+                            onNavigateSubirArchivo()
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(containerColor = Color(0xFF3949AB).copy(alpha = 0.15f))
@@ -251,7 +235,7 @@ fun DocumentsScreen(viewModel: DocumentoViewModel = viewModel()) {
                             Column {
                                 Text("Subir archivo", color = Color.White, fontWeight = FontWeight.SemiBold,
                                     style = MaterialTheme.typography.bodyMedium)
-                                Text("Crea un documento con nombre y tipo",
+                                Text("PDF, DOC, DOCX, TXT",
                                     color = Color.White.copy(alpha = 0.6f),
                                     style = MaterialTheme.typography.labelSmall)
                             }
@@ -269,7 +253,7 @@ fun DocumentsScreen(viewModel: DocumentoViewModel = viewModel()) {
                             Column {
                                 Text("Crear con plantilla", color = Color.White, fontWeight = FontWeight.SemiBold,
                                     style = MaterialTheme.typography.bodyMedium)
-                                Text("Usa una plantilla legal predefinida",
+                                Text("Formulario legal predefinido",
                                     color = Color.White.copy(alpha = 0.6f),
                                     style = MaterialTheme.typography.labelSmall)
                             }
@@ -285,154 +269,95 @@ fun DocumentsScreen(viewModel: DocumentoViewModel = viewModel()) {
             }
         )
     }
-
-    // Diálogo crear documento nuevo
-    if (mostrarDialogNuevo) {
-        NuevoDocumentoDialog(
-            onDismiss = { mostrarDialogNuevo = false },
-            onConfirm = { nombre, tipo ->
-                viewModel.crearDocumento(nombre, tipo) { ok, err ->
-                    scope.launch {
-                        snackbarHostState.showSnackbar(if (ok) "Documento creado" else err ?: "Error")
-                    }
-                }
-                mostrarDialogNuevo = false
-            }
-        )
-    }
-
-    // Diálogo usar plantilla
-    mostrarDialogPlantilla?.let { plantilla ->
-        AlertDialog(
-            onDismissRequest = { mostrarDialogPlantilla = null },
-            containerColor = Color(0xFF1E1E2E),
-            title = { Text("Usar plantilla", color = Color.White, fontWeight = FontWeight.Bold) },
-            text = {
-                Text("¿Deseas crear un documento a partir de la plantilla \"${plantilla.nombre}\"?",
-                    color = Color.White.copy(alpha = 0.85f))
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.usarPlantilla(plantilla) { ok, err ->
-                            scope.launch {
-                                snackbarHostState.showSnackbar(if (ok) "Documento creado desde plantilla" else err ?: "Error")
-                            }
-                        }
-                        mostrarDialogPlantilla = null
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BFA5))
-                ) { Text("Usar plantilla", color = Color.White) }
-            },
-            dismissButton = {
-                TextButton(onClick = { mostrarDialogPlantilla = null }) {
-                    Text("Cancelar", color = Color.White.copy(alpha = 0.7f))
-                }
-            }
-        )
-    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NuevoDocumentoDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (String, String) -> Unit
+private fun PlantillaCard(
+    tipo: TipoPlantilla,
+    nombre: String,
+    onUsarPlantilla: () -> Unit
 ) {
-    val tipos = listOf("Contrato", "Poder Notarial", "Carta", "Acuerdo", "Demanda", "Otro")
-    var nombre by remember { mutableStateOf("") }
-    var tipo by remember { mutableStateOf(tipos.first()) }
-    var expandedTipo by remember { mutableStateOf(false) }
-
-    val fieldColors = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = Color(0xFF3949AB), unfocusedBorderColor = Color(0xFF424242),
-        focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-        focusedLabelColor = Color(0xFF3949AB), unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-        cursorColor = Color(0xFF3949AB)
-    )
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = Color(0xFF1E1E2E),
-        title = { Text("Nuevo documento", color = Color.White, fontWeight = FontWeight.Bold) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = nombre, onValueChange = { nombre = it },
-                    label = { Text("Nombre del documento") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = fieldColors
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2E))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Filled.Folder,
+                contentDescription = null,
+                tint = Color(0xFF00BFA5),
+                modifier = Modifier.size(40.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    nombre,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
                 )
-                ExposedDropdownMenuBox(expanded = expandedTipo, onExpandedChange = { expandedTipo = it }) {
-                    OutlinedTextField(
-                        value = tipo, onValueChange = {}, readOnly = true,
-                        label = { Text("Tipo") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTipo) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = fieldColors
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    tipo.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.6f)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color(0xFF00BFA5).copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        "Plantilla",
+                        color = Color(0xFF00BFA5),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                     )
-                    ExposedDropdownMenu(expanded = expandedTipo, onDismissRequest = { expandedTipo = false },
-                        containerColor = Color(0xFF1E1E2E)) {
-                        tipos.forEach { t ->
-                            DropdownMenuItem(
-                                text = { Text(t, color = Color.White) },
-                                onClick = { tipo = t; expandedTipo = false }
-                            )
-                        }
-                    }
                 }
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = { if (nombre.isNotBlank()) onConfirm(nombre, tipo) },
-                enabled = nombre.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3949AB))
-            ) { Text("Crear") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar", color = Color.White.copy(alpha = 0.7f)) }
+            IconButton(onClick = onUsarPlantilla) {
+                Icon(
+                    Icons.Filled.Edit,
+                    contentDescription = "Usar plantilla",
+                    tint = Color(0xFF00BFA5)
+                )
+            }
         }
-    )
+    }
 }
 
 @Composable
 private fun DocumentoCard(
     documento: Documento,
-    esPlantilla: Boolean = false,
     onFirmar: ((String) -> Unit)? = null,
     onRechazar: ((String) -> Unit)? = null,
     onEliminar: ((String, String) -> Unit)? = null,
-    onUsarPlantilla: ((Documento) -> Unit)? = null
+    onDescargar: (() -> Unit)? = null
 ) {
-    val (statusColor, statusText) = if (esPlantilla) {
-        Color(0xFF00BFA5) to "Plantilla"
-    } else {
-        when (documento.estadoFirma) {
-            EstadoFirma.PENDIENTE  -> Color(0xFFFFA726) to "Pendiente"
-            EstadoFirma.FIRMADO    -> Color(0xFF00BFA5) to "Firmado"
-            EstadoFirma.RECHAZADO  -> Color(0xFFCF6679) to "Rechazado"
-        }
+    val (statusColor, statusText) = when (documento.estadoFirma) {
+        EstadoFirma.PENDIENTE  -> Color(0xFFFFA726) to "Pendiente"
+        EstadoFirma.FIRMADO    -> Color(0xFF00BFA5) to "Firmado"
+        EstadoFirma.RECHAZADO  -> Color(0xFFCF6679) to "Rechazado"
     }
 
     val currentUserId = SessionManager.currentUser?.id
-    val showSignActions = !esPlantilla
-        && documento.estadoFirma == EstadoFirma.PENDIENTE
+    val showSignActions = documento.estadoFirma == EstadoFirma.PENDIENTE
         && documento.subidoPor != currentUserId
         && onFirmar != null
         && onRechazar != null
-    val showDelete = !esPlantilla && documento.subidoPor == currentUserId && onEliminar != null
+    val showDelete = documento.subidoPor == currentUserId && onEliminar != null
 
-    // null = no dialog open; "firmar", "rechazar", or "eliminar"
     var pendingAction by remember { mutableStateOf<String?>(null) }
 
     if (pendingAction != null) {
         val action = pendingAction!!
         val (dialogTitle, dialogText, btnColor, btnLabel) = when (action) {
-            "firmar"   -> listOf("Confirmar firma", "¿Deseas firmar \"${documento.nombre}\"?", Color(0xFF00BFA5), "Firmar")
+            "firmar"   -> listOf("Confirmar firma", "¿Deseas marcar como firmado \"${documento.nombre}\"?", Color(0xFF00BFA5), "Firmar")
             "rechazar" -> listOf("Confirmar rechazo", "¿Deseas rechazar \"${documento.nombre}\"?", Color(0xFFCF6679), "Rechazar")
             else       -> listOf("Eliminar documento", "¿Eliminar \"${documento.nombre}\" permanentemente?", Color(0xFFCF6679), "Eliminar")
         }
@@ -476,9 +401,9 @@ private fun DocumentoCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    if (esPlantilla) Icons.Filled.Folder else Icons.AutoMirrored.Filled.InsertDriveFile,
+                    Icons.AutoMirrored.Filled.InsertDriveFile,
                     contentDescription = null,
-                    tint = if (esPlantilla) Color(0xFF00BFA5) else Color(0xFF3949AB),
+                    tint = Color(0xFF3949AB),
                     modifier = Modifier.size(40.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -509,22 +434,14 @@ private fun DocumentoCard(
                         )
                     }
                 }
-                if (esPlantilla && onUsarPlantilla != null) {
-                    IconButton(onClick = { onUsarPlantilla(documento) }) {
-                        Icon(
-                            Icons.Filled.Download,
-                            contentDescription = "Usar plantilla",
-                            tint = Color(0xFF00BFA5)
-                        )
+                if (onDescargar != null) {
+                    IconButton(onClick = onDescargar) {
+                        Icon(Icons.Filled.Download, contentDescription = "Descargar", tint = Color(0xFF3949AB))
                     }
                 }
                 if (showDelete) {
                     IconButton(onClick = { pendingAction = "eliminar" }) {
-                        Icon(
-                            Icons.Filled.Delete,
-                            contentDescription = "Eliminar documento",
-                            tint = Color(0xFFCF6679)
-                        )
+                        Icon(Icons.Filled.Delete, contentDescription = "Eliminar documento", tint = Color(0xFFCF6679))
                     }
                 }
             }

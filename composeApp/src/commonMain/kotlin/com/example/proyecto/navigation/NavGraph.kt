@@ -19,6 +19,9 @@ import com.example.proyecto.ui.screens.MainScreen
 import com.example.proyecto.ui.screens.NotificacionesScreen
 import com.example.proyecto.ui.screens.RegisterAbogadoScreen
 import com.example.proyecto.ui.screens.RegisterClienteScreen
+import com.example.proyecto.ui.screens.SubirArchivoScreen
+import com.example.proyecto.ui.screens.TemplateFormScreen
+import com.example.proyecto.data.model.TipoPlantilla
 import com.example.proyecto.ui.screens.SecurityScreen
 import com.example.proyecto.ui.screens.TermsScreen
 import com.example.proyecto.ui.screens.WelcomeScreen
@@ -33,6 +36,8 @@ object Routes {
     const val MAIN = "main"
     const val CREATE_CONSULTATION = "create_consultation?abogadoId={abogadoId}&abogadoNombre={abogadoNombre}"
     const val DOCUMENTO_DETALLE = "documento_detalle/{documentoId}"
+    const val SUBIR_ARCHIVO = "subir_archivo"
+    const val TEMPLATE_FORM = "template_form/{tipoPlantilla}"
     const val SECURITY = "security"
     const val NOTIFICATIONS = "notifications"
     const val AUDIT_LOGS = "audit_logs"
@@ -107,5 +112,30 @@ fun AppNavGraph() {
         composable(Routes.AUDIT_LOGS) { AuditLogScreen(onNavigateBack = { navController.popBackStack() }) }
         composable(Routes.HELP_CENTER) { HelpCenterScreen(navController = navController) }
         composable(Routes.TERMS) { TermsScreen(navController = navController) }
+        composable(Routes.SUBIR_ARCHIVO) {
+            SubirArchivoScreen(
+                onBack = { navController.popBackStack() },
+                onArchivoSubido = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(
+            route = Routes.TEMPLATE_FORM,
+            arguments = listOf(
+                navArgument("tipoPlantilla") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val tipoStr = backStackEntry.arguments?.getString("tipoPlantilla") ?: return@composable
+            val tipo = try { TipoPlantilla.valueOf(tipoStr) } catch (e: Exception) { return@composable }
+            TemplateFormScreen(
+                tipoPlantilla = tipo,
+                onBack = { navController.popBackStack() },
+                onDocumentoCreado = {
+                    navController.popBackStack()
+                    navController.navigate(Routes.MAIN)
+                }
+            )
+        }
     }
 }

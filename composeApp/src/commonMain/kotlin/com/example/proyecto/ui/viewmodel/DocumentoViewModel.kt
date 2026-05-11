@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyecto.data.model.Documento
 import com.example.proyecto.data.model.EstadoFirma
+import com.example.proyecto.data.model.TipoPlantilla
+import com.example.proyecto.data.util.PdfGenerator
 import com.example.proyecto.data.repository.DocumentoRepository
 import com.example.proyecto.data.repository.DocumentoRepository.Companion.PAGE_SIZE
 import com.example.proyecto.data.session.SessionManager
@@ -206,6 +208,61 @@ class DocumentoViewModel(
                     tipo = plantilla.tipo,
                     subidoPor = userId,
                     url = plantilla.url
+                )
+                cargarDocumentos()
+                onResult(true, null)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                onResult(false, e.message)
+            }
+        }
+    }
+
+    fun generarPdfDesdePlantilla(
+        tipo: TipoPlantilla,
+        datos: Map<String, String>,
+        nombreDocumento: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val userId = SessionManager.currentUser?.id ?: run { onResult(false, "Sesión no iniciada"); return }
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val pdfBytes = PdfGenerator.generatePdf(tipo, datos, nombreDocumento)
+                val documento = repository.subirDocumento(
+                    nombre = "$nombreDocumento.pdf",
+                    bytes = pdfBytes,
+                    consultaId = null,
+                    tipo = tipo.displayName,
+                    subidoPor = userId,
+                    esPlantilla = false
+                )
+                cargarDocumentos()
+                onResult(true, null)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                onResult(false, e.message)
+            }
+        }
+    }
+
+    fun subirArchivo(
+        bytes: ByteArray,
+        nombre: String,
+        tipo: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        val userId = SessionManager.currentUser?.id ?: run { onResult(false, "Sesión no iniciada"); return }
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                repository.subirDocumento(
+                    nombre = nombre,
+                    bytes = bytes,
+                    consultaId = null,
+                    tipo = tipo,
+                    subidoPor = userId,
+                    esPlantilla = false
                 )
                 cargarDocumentos()
                 onResult(true, null)

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.proyecto.data.model.User
 import com.example.proyecto.ui.viewmodel.AbogadoViewModel
 
@@ -29,6 +30,7 @@ private val ESPECIALIDADES = listOf("Todos", "Penal", "Civil", "Laboral", "Famil
 @Composable
 fun LawyersScreen(
     onSolicitarConsulta: (abogadoId: String, abogadoNombre: String) -> Unit = { _, _ -> },
+    navController: NavController? = null,
     viewModel: AbogadoViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()

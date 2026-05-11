@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.proyecto.data.session.SessionManager
+import com.example.proyecto.navigation.Routes
 import com.example.proyecto.ui.viewmodel.NotificacionViewModel
 
 private data class BottomNavItem(
@@ -86,10 +87,17 @@ fun MainScreen(
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             when (selectedTab) {
                 0 -> HomeScreen(onNavigateToTab = { selectedTab = it })
-                1 -> LawyersScreen(onSolicitarConsulta = { abogadoId, abogadoNombre ->
-                    navController.navigate("create_consultation?abogadoId=$abogadoId&abogadoNombre=$abogadoNombre")
-                })
-                2 -> DocumentsScreen()
+                1 -> LawyersScreen(
+                    onSolicitarConsulta = { abogadoId, abogadoNombre ->
+                        navController.navigate("create_consultation?abogadoId=$abogadoId&abogadoNombre=$abogadoNombre")
+                    },
+                    navController = navController
+                )
+                2 -> DocumentsScreen(
+                    navController = navController,
+                    onNavigateSubirArchivo = { navController.navigate(Routes.SUBIR_ARCHIVO) },
+                    onNavigateTemplateForm = { tipo -> navController.navigate("template_form/${tipo.name}") }
+                )
                 3 -> ConsultationsScreen()
                 4 -> ProfileScreen(navController = navController)
                 5 -> if (isAdmin) ReportesScreen()
