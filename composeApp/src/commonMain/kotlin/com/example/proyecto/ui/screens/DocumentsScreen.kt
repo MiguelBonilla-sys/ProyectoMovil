@@ -1,5 +1,7 @@
 package com.example.proyecto.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,6 +26,9 @@ import com.example.proyecto.data.model.EstadoFirma
 import com.example.proyecto.data.model.TipoPlantilla
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.ui.viewmodel.DocumentoViewModel
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 private val FILTROS = listOf("Todos", "Pendientes", "Firmados", "Rechazados")
 
@@ -45,6 +51,8 @@ fun DocumentsScreen(
     var vistaPlantillas by remember { mutableStateOf(false) }
     var mostrarMenuCrear by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = Color(0xFF0D0D1A),
@@ -182,7 +190,12 @@ fun DocumentsScreen(
                                 onFirmar = { id -> viewModel.actualizarFirma(id, EstadoFirma.FIRMADO) { } },
                                 onRechazar = { id -> viewModel.actualizarFirma(id, EstadoFirma.RECHAZADO) { } },
                                 onEliminar = { id, url -> viewModel.eliminarDocumento(id, url) },
-                                onDescargar = null
+                                onDescargar = {
+                                    if (doc.url.isNotBlank()) {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(doc.url))
+                                        context.startActivity(intent)
+                                    }
+                                }
                             )
                         }
                         item {
@@ -341,7 +354,7 @@ private fun DocumentoCard(
 ) {
     val (statusColor, statusText) = when (documento.estadoFirma) {
         EstadoFirma.PENDIENTE  -> Color(0xFFFFA726) to "Pendiente"
-        EstadoFirma.FIRMADO    -> Color(0xFF00BFA5) to "Firmado"
+        EstadoFirma.FIRMADO   -> Color(0xFF00BFA5) to "Firmado"
         EstadoFirma.RECHAZADO  -> Color(0xFFCF6679) to "Rechazado"
     }
 
@@ -353,6 +366,19 @@ private fun DocumentoCard(
     val showDelete = documento.subidoPor == currentUserId && onEliminar != null
 
     var pendingAction by remember { mutableStateOf<String?>(null) }
+
+    val formattedDate = remember(documento.createdAt) {
+        documento.createdAt?.let { dateStr ->
+            try {
+                val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "CO"))
+                val date = inputFormat.parse(dateStr)
+                date?.let { outputFormat.format(it) } ?: dateStr.substringBefore("T")
+            } catch (e: Exception) {
+                dateStr.substringBefore("T")
+            }
+        } ?: ""
+    }
 
     if (pendingAction != null) {
         val action = pendingAction!!
@@ -420,7 +446,24 @@ private fun DocumentoCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.6f)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    if (formattedDate.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Filled.CalendarToday,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.5f),
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                formattedDate,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
                     Surface(
                         shape = RoundedCornerShape(20.dp),
                         color = statusColor.copy(alpha = 0.15f)
@@ -434,14 +477,26 @@ private fun DocumentoCard(
                         )
                     }
                 }
-                if (onDescargar != null) {
-                    IconButton(onClick = onDescargar) {
-                        Icon(Icons.Filled.Download, contentDescription = "Descargar", tint = Color(0xFF3949AB))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (onDescargar != null) {
+                        FilledTonalButton(
+                            onClick = onDescargar,
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = Color(0xFF3949AB),
+                                contentColor = Color.White
+                            ),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Filled.Download, contentDescription = "Descargar", modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Descargar", style = MaterialTheme.typography.labelMedium)
+                        }
                     }
-                }
-                if (showDelete) {
-                    IconButton(onClick = { pendingAction = "eliminar" }) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Eliminar documento", tint = Color(0xFFCF6679))
+                    if (showDelete) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        IconButton(onClick = { pendingAction = "eliminar" }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Eliminar", tint = Color(0xFFCF6679))
+                        }
                     }
                 }
             }

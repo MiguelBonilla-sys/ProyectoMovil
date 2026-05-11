@@ -22,28 +22,39 @@ class DocumentoRepository {
         tipo: String,
         subidoPor: String,
         esPlantilla: Boolean = false
-    ): Documento {
-        val bucket = if (esPlantilla) BUCKET_PLANTILLAS else BUCKET_DOCUMENTOS
-        val path = "$subidoPor/${System.currentTimeMillis()}_$nombre"
+    ): Result<Documento> {
+        return try {
+            val bucket = if (esPlantilla) BUCKET_PLANTILLAS else BUCKET_DOCUMENTOS
+            val path = "$subidoPor/${System.currentTimeMillis()}_$nombre"
 
-        supabase.storage.from(bucket).upload(path, bytes) {
-            upsert = false
+            supabase.storage.from(bucket).upload(path, bytes) {
+                upsert = false
+            }
+
+            val publicUrl = supabase.storage.from(bucket).publicUrl(path)
+
+            val documento = Documento(
+                consultaId = consultaId,
+                nombre = nombre,
+                url = publicUrl,
+                tipo = tipo,
+                esPlantilla = esPlantilla,
+                subidoPor = subidoPor
+            )
+
+            val inserted = supabase.from("documentos")
+                .insert(documento) { select() }
+                .decodeSingle<Documento>()
+            Result.success(inserted)
+        } catch (e: Exception) {
+            val message = when {
+                e.message?.contains("bucket") == true -> "Bucket de storage no encontrado. Contacta al administrador."
+                e.message?.contains("row-level security") == true -> "Permiso denegado. Verifica las políticas del bucket."
+                e.message?.contains("not found") == true -> "El bucket '${if (esPlantilla) BUCKET_PLANTILLAS else BUCKET_DOCUMENTOS}' no existe en Supabase."
+                else -> e.message ?: "Error desconocido al subir documento"
+            }
+            Result.failure(Exception(message))
         }
-
-        val publicUrl = supabase.storage.from(bucket).publicUrl(path)
-
-        val documento = Documento(
-            consultaId = consultaId,
-            nombre = nombre,
-            url = publicUrl,
-            tipo = tipo,
-            esPlantilla = esPlantilla,
-            subidoPor = subidoPor
-        )
-
-        return supabase.from("documentos")
-            .insert(documento) { select() }
-            .decodeSingle<Documento>()
     }
 
     suspend fun crearDesdeMetadata(

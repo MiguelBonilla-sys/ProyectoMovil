@@ -229,7 +229,7 @@ class DocumentoViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
                 val pdfBytes = PdfGenerator.generatePdf(tipo, datos, nombreDocumento)
-                val documento = repository.subirDocumento(
+                val result = repository.subirDocumento(
                     nombre = "$nombreDocumento.pdf",
                     bytes = pdfBytes,
                     consultaId = null,
@@ -237,8 +237,16 @@ class DocumentoViewModel(
                     subidoPor = userId,
                     esPlantilla = false
                 )
-                cargarDocumentos()
-                onResult(true, null)
+                result.fold(
+                    onSuccess = {
+                        cargarDocumentos()
+                        onResult(true, null)
+                    },
+                    onFailure = { e ->
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                        onResult(false, e.message)
+                    }
+                )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
                 onResult(false, e.message)
@@ -256,7 +264,7 @@ class DocumentoViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                repository.subirDocumento(
+                val result = repository.subirDocumento(
                     nombre = nombre,
                     bytes = bytes,
                     consultaId = null,
@@ -264,8 +272,16 @@ class DocumentoViewModel(
                     subidoPor = userId,
                     esPlantilla = false
                 )
-                cargarDocumentos()
-                onResult(true, null)
+                result.fold(
+                    onSuccess = {
+                        cargarDocumentos()
+                        onResult(true, null)
+                    },
+                    onFailure = { e ->
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                        onResult(false, e.message)
+                    }
+                )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
                 onResult(false, e.message)
