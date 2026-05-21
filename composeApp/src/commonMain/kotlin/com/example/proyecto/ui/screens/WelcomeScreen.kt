@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.proyecto.ui.components.LexSignLogo
 
 @Composable
 fun WelcomeScreen(navController: NavController) {
@@ -44,11 +45,9 @@ fun WelcomeScreen(navController: NavController) {
                     .background(Color(0xFF5C6BC0)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Gavel,
-                    contentDescription = "LexSign Logo",
-                    tint = Color.White,
-                    modifier = Modifier.size(40.dp)
+                LexSignLogo(
+                    modifier = Modifier.size(52.dp),
+                    color = Color.White
                 )
             }
 

@@ -1,13 +1,11 @@
 package com.example.proyecto.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.ui.screens.AuditLogScreen
 import com.example.proyecto.ui.screens.CreateConsultationScreen
 import com.example.proyecto.ui.screens.DocumentoDetalleScreen
@@ -23,10 +21,12 @@ import com.example.proyecto.ui.screens.SubirArchivoScreen
 import com.example.proyecto.ui.screens.TemplateFormScreen
 import com.example.proyecto.data.model.TipoPlantilla
 import com.example.proyecto.ui.screens.SecurityScreen
+import com.example.proyecto.ui.screens.SplashScreen
 import com.example.proyecto.ui.screens.TermsScreen
 import com.example.proyecto.ui.screens.WelcomeScreen
 
 object Routes {
+    const val SPLASH = "splash"
     const val WELCOME = "welcome"
     const val LOGIN_CLIENTE = "login_cliente"
     const val LOGIN_ABOGADO = "login_abogado"
@@ -49,14 +49,11 @@ object Routes {
 fun AppNavGraph() {
     val navController = rememberNavController()
 
-    val startDestination = remember {
-        if (SessionManager.restoreSession()) Routes.MAIN else Routes.WELCOME
-    }
-
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Routes.SPLASH
     ) {
+        composable(Routes.SPLASH) { SplashScreen(navController = navController) }
         composable(Routes.WELCOME) { WelcomeScreen(navController = navController) }
         composable(Routes.LOGIN_CLIENTE) { LoginClienteScreen(navController = navController) }
         composable(Routes.LOGIN_ABOGADO) { LoginAbogadoScreen(navController = navController) }
