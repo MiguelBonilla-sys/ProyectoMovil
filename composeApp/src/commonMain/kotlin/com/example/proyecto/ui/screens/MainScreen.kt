@@ -16,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.navigation.Routes
+import com.example.proyecto.ui.components.LexSignTopBar
 import com.example.proyecto.ui.viewmodel.NotificacionViewModel
 
 private data class BottomNavItem(
@@ -47,6 +48,9 @@ fun MainScreen(
 
     Scaffold(
         containerColor = Color(0xFF0D0D1A),
+        topBar = {
+            LexSignTopBar(navController = navController)
+        },
         bottomBar = {
             NavigationBar(
                 containerColor = Color(0xFF1E1E2E),
