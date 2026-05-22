@@ -63,6 +63,8 @@ kotlin {
             implementation(libs.supabase.auth)
             implementation(libs.supabase.realtime)
             implementation(libs.supabase.storage)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         iosMain.dependencies {
             implementation(libs.ktor.darwin)

@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -25,6 +26,9 @@ import com.example.proyecto.data.model.Consulta
 import com.example.proyecto.data.model.EstadoConsulta
 import com.example.proyecto.data.session.SessionManager
 import com.example.proyecto.ui.viewmodel.HomeViewModel
+import proyecto.composeapp.generated.resources.Res
+import proyecto.composeapp.generated.resources.legal_banner
+import org.jetbrains.compose.resources.painterResource
 
 private val quickActionTabs = listOf(3, 2, 1)
 
@@ -72,6 +76,40 @@ fun HomeScreen(
                 }
                 IconButton(onClick = { viewModel.cargarDatos() }) {
                     Icon(Icons.Filled.Refresh, contentDescription = "Recargar", tint = Color.White)
+                }
+            }
+        }
+
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1A237E))
+            ) {
+                Box {
+                    androidx.compose.foundation.Image(
+                        painter = painterResource(Res.drawable.legal_banner),
+                        contentDescription = "Banner LexSign",
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier.fillMaxWidth().height(100.dp)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(horizontal = 20.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = "Justicia al alcance",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Tu plataforma legal de confianza",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
                 }
             }
         }

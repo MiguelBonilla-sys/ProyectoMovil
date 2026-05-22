@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="120dp"
+    android:viewportWidth="360"
+    android:viewportHeight="120">
+
+    <!-- Fondo degradado simulado con rectángulo -->
+    <path
+        android:pathData="M0,0 L360,0 L360,120 L0,120 Z"
+        android:fillColor="#1A237E"/>
+
+    <!-- Franja decorativa inferior -->
+    <path
+        android:pathData="M0,100 L360,100 L360,120 L0,120 Z"
+        android:fillColor="#3949AB"/>
+
+    <!-- Eje vertical de la balanza -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M180,20 L180,90"/>
+
+    <!-- Esfera en la punta -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M176.5,17 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0"/>
+
+    <!-- Viga inclinada -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M120,45 L240,49"/>
+
+    <!-- Pivote -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M177.8,47 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0"/>
+
+    <!-- Cadena izquierda -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M120,45 L120,62"/>
+
+    <!-- Platillo izquierdo borde -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M108,62 L132,62"/>
+
+    <!-- Platillo izquierdo cuenco -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M132,62 A12,7 0 0,1 108,62"/>
+
+    <!-- Cadena derecha -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M240,49 L240,68"/>
+
+    <!-- Platillo derecho borde -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M228,68 L252,68"/>
+
+    <!-- Platillo derecho cuenco -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M252,68 A12,7 0 0,1 228,68"/>
+
+    <!-- Base -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M172,90 L188,90"/>
+
+    <!-- Pies -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M163,98 L197,98"/>
+
+    <!-- Texto "LEXSIGN" decorativo -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.15"
+        android:pathData="M20,55 L340,55 L340,75 L20,75 Z"/>
+
+</vector>
